@@ -1,0 +1,17 @@
+{
+  "name": "sygefor/api-bundle",
+  "license": "MIT",
+  "keywords": ["sygefor","api"],
+  "type": "symfony-bundle",
+  "autoload": {
+    "psr-4": {
+      "psr-0": { "Sygefor\\Bundle\\ApiBundle": "" }
+    },
+    "target-dir": "Sygefor/ApiBundle"
+  },
+  "authors": [
+    {
+      "name": "Conjecto"
+    }
+  ]
+}
