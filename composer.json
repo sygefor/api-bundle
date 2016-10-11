@@ -5,9 +5,8 @@
   "type": "symfony-bundle",
   "autoload": {
     "psr-4": {
-      "psr-0": { "Sygefor\\Bundle\\ApiBundle": "" }
-    },
-    "target-dir": "Sygefor/ApiBundle"
+      "Sygefor\\Bundle\\ApiBundle\\": ""
+    }
   },
   "authors": [
     {
