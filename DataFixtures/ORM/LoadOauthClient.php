@@ -16,7 +16,7 @@ class LoadOauthClient extends AbstractTermLoad
     {
         return array(
             array(
-                'randomId' => '5cn6gjovjzks48ckkowkgko8owk8o8ccwow8o4w0c84c40kwsk',
+                'randomId'     => '5cn6gjovjzks48ckkowkgko8owk8o8ccwow8o4w0c84c40kwsk',
                 'redirectUris' => array(
                     'http://localhost:3000',
                     'https://' . $this->container->getParameter('front_host'),
@@ -25,8 +25,8 @@ class LoadOauthClient extends AbstractTermLoad
                     'password',
                     'refresh_token',
                 ),
-                'public' => true
-            )
+                'public' => true,
+            ),
         );
     }
 }

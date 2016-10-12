@@ -2,9 +2,13 @@
 
 namespace Sygefor\Bundle\ApiBundle\Controller\Account;
 
-use Doctrine\ORM\EntityManager;
+use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use Monolog\Logger;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sygefor\Bundle\ApiBundle\Form\Type\RegistrationType;
 use Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee;
 use Sygefor\Bundle\TraineeBundle\Entity\TraineeRepository;
@@ -14,11 +18,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use FOS\RestBundle\Controller\Annotations as Rest;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 /**
  * This controller regroup all public actions relative to account.
@@ -43,7 +42,7 @@ abstract class AbstractAnonymousAccountController extends Controller
 
         try {
             /** @var AbstractTrainee $trainee */
-            $trainee = new $this->traineeClass;
+            $trainee = new $this->traineeClass();
             $form    = $this->createForm(RegistrationType::class, $trainee);
             // remove extra fields
             //$data = RegistrationType::extractRequestData($request, $form);
@@ -55,7 +54,7 @@ abstract class AbstractAnonymousAccountController extends Controller
             // submit
             $form->submit($data, true);
             if ($form->isValid()) {
-                $em = $this->getDoctrine()->getManager();
+                $em         = $this->getDoctrine()->getManager();
                 $token      = $this->get('security.context')->getToken();
                 $shibboleth = ($request->get('shibboleth') && $token->hasAttribute('mail') && $token->getAttribute('mail'));
                 $this->registerShibbolethTrainee($request, $trainee, $shibboleth);
@@ -206,14 +205,14 @@ abstract class AbstractAnonymousAccountController extends Controller
     /**
      * @param Request $request
      * @param $trainee
-     * @param boolean
+     * @param bool
      */
     protected function registerShibbolethTrainee(Request $request, $trainee, $shibboleth)
     {
         $trainee->setIsActive(false);
 
         // shibboleth
-        $token      = $this->get('security.context')->getToken();
+        $token = $this->get('security.context')->getToken();
 
         if ($shibboleth) {
             // if shibboleth, save persistent_id and force mail
@@ -246,7 +245,7 @@ abstract class AbstractAnonymousAccountController extends Controller
 
     /**
      * @param AbstractTrainee $trainee
-     * @param string  $timestamp
+     * @param string          $timestamp
      *
      * @return string
      */

@@ -2,6 +2,7 @@
 
 namespace Sygefor\Bundle\ApiBundle\Form\Type;
 
+use Sygefor\Bundle\InstitutionBundle\Form\BaseInstitutionType;
 use Sygefor\Bundle\TraineeBundle\Form\BaseTraineeType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -10,7 +11,6 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Valid;
-use Sygefor\Bundle\InstitutionBundle\Form\BaseInstitutionType;
 
 /**
  * Class ProfileType.
@@ -28,7 +28,7 @@ class ProfileType extends BaseTraineeType
             $form = $event->getForm();
 
             // institution
-            if (!empty($data['institution'])) {
+            if ( ! empty($data['institution'])) {
                 // todo
                 $this->addInstitutionField($form, $data['organization']);
             }

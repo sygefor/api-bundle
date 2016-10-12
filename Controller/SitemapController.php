@@ -3,13 +3,13 @@
 namespace Sygefor\Bundle\ApiBundle\Controller;
 
 use Elastica\Filter\Term;
+use FOS\RestBundle\Controller\Annotations as Rest;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sygefor\Bundle\ApiBundle\Sitemap\Url;
 use Sygefor\Bundle\ApiBundle\Sitemap\UrlSet;
 use Sygefor\Bundle\CoreBundle\Search\SearchService;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use FOS\RestBundle\Controller\Annotations as Rest;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 class SitemapController extends Controller
 {

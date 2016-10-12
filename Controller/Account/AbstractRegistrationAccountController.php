@@ -3,11 +3,15 @@
 namespace Sygefor\Bundle\ApiBundle\Controller\Account;
 
 use Doctrine\ORM\EntityManager;
+use FOS\RestBundle\Controller\Annotations as Rest;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sygefor\Bundle\CoreBundle\Entity\Organization;
 use Sygefor\Bundle\InscriptionBundle\Entity\AbstractInscription;
-use Sygefor\Bundle\TraineeBundle\Entity\Term\EmailTemplate;
 use Sygefor\Bundle\InscriptionBundle\Entity\Term\InscriptionStatus;
 use Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee;
+use Sygefor\Bundle\TraineeBundle\Entity\Term\EmailTemplate;
 use Sygefor\Bundle\TrainingBundle\Entity\Session\AbstractSession;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,10 +19,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use FOS\RestBundle\Controller\Annotations as Rest;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 /**
  * This controller regroup actions related to registration.
@@ -47,7 +47,7 @@ abstract class AbstractRegistrationAccountController extends Controller
         $trainee = $this->getUser();
 
         $sessions = empty($sessions) ? $request->get('sessions') : $sessions;
-        if (!$sessions) {
+        if ( ! $sessions) {
             throw new BadRequestHttpException('You must provide a list of session id.');
         }
 
@@ -69,11 +69,11 @@ abstract class AbstractRegistrationAccountController extends Controller
                 ->getQuery()
                 ->getOneOrNullResult();
 
-            if (!$session) {
+            if ( ! $session) {
                 throw new BadRequestHttpException('This session id is invalid : ' . $id);
             }
             // check registrable
-            if (!$session->isRegistrable()) {
+            if ( ! $session->isRegistrable()) {
                 throw new AccessDeniedException('This session is not registrable : ' . $id);
             }
 
@@ -123,7 +123,7 @@ abstract class AbstractRegistrationAccountController extends Controller
             ));
 
             // if inscription do not exists OR the trainee desisted
-            if (!$inscription) {
+            if ( ! $inscription) {
 
                 // if trainee has already checkout a module session
 //                if ($session->getModule() && isset($modulesSessions[$session->getModule()->getId()])) {
@@ -143,8 +143,8 @@ abstract class AbstractRegistrationAccountController extends Controller
 //                }
 
                 // if not, create it
-                if (!$inscription) {
-                    $inscription = new $this->inscriptionClass;
+                if ( ! $inscription) {
+                    $inscription = new $this->inscriptionClass();
                     $inscription->setTrainee($trainee);
                     $inscription->setSession($session);
                 }
@@ -259,7 +259,7 @@ abstract class AbstractRegistrationAccountController extends Controller
         try {
             // get forms
             $formTemplates = $this->getAuthorizationForms($trainee, $registrations, $this->authorizationTemplate);
-            $forms = array();
+            $forms         = array();
             foreach ($formTemplates as $org => $template) {
                 foreach ($template as $html) {
                     $forms[$org] = $html;
@@ -283,7 +283,7 @@ abstract class AbstractRegistrationAccountController extends Controller
     }
 
     /**
-     * @param array $inscriptions
+     * @param array           $inscriptions
      * @param AbstractTrainee $trainee
      */
     protected function sendCheckoutNotification($inscriptions, $trainee)
@@ -324,7 +324,7 @@ abstract class AbstractRegistrationAccountController extends Controller
             // send the mail if attachment fails
             try {
                 // knp_snappy doest not work locally
-                if ($this->get('kernel')->getEnvironment() !== "dev") {
+                if ($this->get('kernel')->getEnvironment() !== 'dev') {
                     $organizationInscriptions = $this->getDoctrine()
                         ->getRepository($this->inscriptionClass)
                         ->findBy(array('id' => $inscriptionIds));
@@ -332,7 +332,7 @@ abstract class AbstractRegistrationAccountController extends Controller
                     foreach ($forms as $code => $template) {
                         foreach ($template as $key => $html) {
                             $data = $this->get('knp_snappy.pdf')
-                                ->getOutputFromHtml($html, array('print-media-type' => NULL));
+                                ->getOutputFromHtml($html, array('print-media-type' => null));
                             $attachments[] = \Swift_Attachment::newInstance($data, 'formulaire_' . $key . $code . '.pdf', 'application/pdf');
                         }
                     }
@@ -348,11 +348,11 @@ abstract class AbstractRegistrationAccountController extends Controller
                     $inscriptionIds,
                     array(
                         'targetClass' => $this->inscriptionClass,
-                        'preview' => FALSE,
-                        'subject' => $checkoutEmailTemplate->getSubject(),
-                        'message' => $checkoutEmailTemplate->getBody(),
-                        'attachment' => empty($attachments) ? NULL : $attachments,
-                        'typeUser' => get_class($this->getUser()),
+                        'preview'     => false,
+                        'subject'     => $checkoutEmailTemplate->getSubject(),
+                        'message'     => $checkoutEmailTemplate->getBody(),
+                        'attachment'  => empty($attachments) ? null : $attachments,
+                        'typeUser'    => get_class($this->getUser()),
                     )
                 );
             }
@@ -378,10 +378,10 @@ abstract class AbstractRegistrationAccountController extends Controller
         // verify & group sessions by organization
         /** @var AbstractInscription $registration */
         foreach ($registrations as $registration) {
-            if (!($registration instanceof $this->inscriptionClass)) {
+            if ( ! ($registration instanceof $this->inscriptionClass)) {
                 $id           = (int) $registration;
                 $registration = $repository->find($id);
-                if (!$registration) {
+                if ( ! $registration) {
                     throw new \InvalidArgumentException('The registration identifier is not valid : ' . $id);
                 }
             }
@@ -424,7 +424,7 @@ abstract class AbstractRegistrationAccountController extends Controller
     {
         $em     = $this->getDoctrine()->getManager();
         $status = $em->getRepository('SygeforInscriptionBundle:Term\InscriptionStatus')->findOneBy(array('machineName' => 'desist', 'organization' => null));
-        if (!$status) {
+        if ( ! $status) {
             $status = $em->getRepository('SygeforInscriptionBundle:Term\InscriptionStatus')->findOneBy(array('machineName' => 'desist', 'organization' => $trainee->getOrganization()));
         }
 

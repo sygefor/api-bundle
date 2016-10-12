@@ -6,8 +6,8 @@ use Elastica\Filter\BoolAnd;
 use Elastica\Filter\BoolNot;
 use Elastica\Filter\Term;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Sygefor\Bundle\CoreBundle\Search\SearchService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sygefor\Bundle\CoreBundle\Search\SearchService;
 
 /**
  * @Route("/api/trainer")
@@ -109,7 +109,7 @@ class TrainerController extends AbstractController
      */
     private function getTrainings($trainerId)
     {
-        /** @var SearchService $search */
+/** @var SearchService $search */
         //$search = $this->get('sygefor_training.search');
         $search = new SearchService($this->get('fos_elastica.index.sygefor3.training'));
         $search->setSource(array('name', 'theme', 'sessions', 'organization'));

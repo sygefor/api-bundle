@@ -3,10 +3,10 @@
 namespace Sygefor\Bundle\ApiBundle\Controller;
 
 use Doctrine\Common\Proxy\Exception\InvalidArgumentException;
-use Sygefor\Bundle\TrainerBundle\Entity\AbstractTrainer;
-use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sygefor\Bundle\TrainerBundle\Entity\AbstractTrainer;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Route("/api/email")

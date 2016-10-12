@@ -5,11 +5,11 @@ namespace Sygefor\Bundle\ApiBundle\Controller;
 use Elastica\Filter\Term;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sygefor\Bundle\CoreBundle\Search\SearchService;
 use Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 /**
  * Class TaxonomyController.
@@ -45,7 +45,7 @@ class TaxonomyController extends Controller
                 continue;
             }
 
-            if (!isset($public_map[$key])) {
+            if ( ! isset($public_map[$key])) {
                 throw new \Exception('This taxonomy does not exist : ' . $key);
             }
             $id = $public_map[$key];
