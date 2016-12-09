@@ -54,7 +54,7 @@ class TrainingController extends AbstractController
           'theme',
           'tags',
           'name',
-          'description',
+          'objectives',
           'program',
           'prerequisite',
           'interventionType',
