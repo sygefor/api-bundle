@@ -61,30 +61,30 @@ class ShibbolethUserProvider implements ShibbolethUserProviderInterface
      */
     public function createUser(ShibbolethUserToken $token)
     {
-        $em    = $this->container->get('doctrine')->getManager();
+        $em = $this->container->get('doctrine')->getManager();
         $email = $token->getAttribute('mail');
 
         $identityProvider = $token->getAttribute('identityProvider');
-        $persistentId     = $token->getAttribute('persistent_id');
-        $targetedId       = $token->getAttribute('targeted_id');
-        $eppn             = $token->getAttribute('eppn');
+        $persistentId = $token->getAttribute('persistent_id');
+        $targetedId = $token->getAttribute('targeted_id');
+        $eppn = $token->getAttribute('eppn');
 
         // try to find a proper persistent id
         $shibbolethId = $persistentId ? $persistentId : $targetedId;
 
         // else, build a custom one with eppn
-        if ( ! $shibbolethId && $identityProvider && $eppn) {
+        if (!$shibbolethId && $identityProvider && $eppn) {
             $shibbolethId = $identityProvider . '!' . $eppn;
         }
 
         // else, set it to 1
-        if ( ! $shibbolethId) {
+        if (!$shibbolethId) {
             $shibbolethId = $email;
         }
 
         // try to find the user by email, and then by persistent id
         $user = $this->repository->findOneByShibbolethPersistentId($shibbolethId);
-        if ( ! $user && ($shibbolethId !== $email)) {
+        if (!$user && ($shibbolethId !== $email)) {
             $user = $this->repository->findOneByEmail($email);
         }
 

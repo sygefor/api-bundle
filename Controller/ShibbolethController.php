@@ -23,15 +23,17 @@ class ShibbolethController extends Controller
     public function authAction(Request $request)
     {
         $front_url = $this->container->getParameter('front_url');
-        $user      = $this->getUser();
-        if($user) {
+        $user = $this->getUser();
+        if ($user) {
             // redirect user to login form
             $url = $front_url . '/login?shibboleth=1';
-        } else {
+        }
+        else {
             // redirect user to registration form
             $url = $front_url . '/register/organization?shibboleth=1';
         }
-        if($request->getQueryString()) {
+
+        if ($request->getQueryString()) {
             $url .= '&' . $request->getQueryString();
         }
 
@@ -45,7 +47,7 @@ class ShibbolethController extends Controller
     public function tokenAction(Request $request)
     {
         $user = $this->getUser();
-        if( ! $user) {
+        if (!$user) {
             throw new AccessDeniedHttpException('Shibboleth session is missing user.');
         }
         $clientId     = $request->get('client_id');
@@ -72,20 +74,21 @@ class ShibbolethController extends Controller
     /**
      * Prepare register data based on shibboleth attributes.
      */
-    private function prepareRegisterData($attrs)
+    protected function prepareRegisterData($attrs)
     {
         $em = $this->getDoctrine()->getManager();
 
         $data = array(
-          'email'     => @$attrs['mail'],
-          'lastName'  => @$attrs['sn'],
-          'firstName' => @$attrs['givenName'],
+            'email' => @$attrs['mail'],
+            'lastName' => @$attrs['sn'],
+            'firstName' => @$attrs['givenName'],
         );
 
         // title
-        if( ! empty($attrs['title']) && in_array($attrs['title'], array('Mme', 'Melle'), true)) {
+        if (!empty($attrs['title']) && in_array($attrs['title'], array('Mme', 'Melle'), true)) {
             $data['title'] = 2;
-        } else {
+        }
+        else {
             $data['title'] = 1;
         }
 
@@ -93,21 +96,21 @@ class ShibbolethController extends Controller
         $data['phoneNumber'] = isset($attrs['mobile']) ? $attrs['mobile'] : $attrs['telephoneNumber'];
 
         // postal address
-        if( ! empty($attrs['postalAddress'])) {
+        if (!empty($attrs['postalAddress'])) {
             $address = $this->parseAddress($attrs['postalAddress']);
-            if($address) {
-                $data['address']    = $address['address'];
-                $data['city']       = $address['city'];
-                $data['zip']        = $address['zip'];
+            if ($address) {
+                $data['address'] = $address['address'];
+                $data['city'] = $address['city'];
+                $data['zip'] = $address['zip'];
                 $data['department'] = substr($address['zip'], 0, 2);
             }
         }
 
         // organization
-        if( ! empty($data['department'])) {
+        if (!empty($data['department'])) {
             $organizations = $em->getRepository('SygeforCoreBundle:Organization')->findAll();
-            foreach($organizations as $organization) {
-                if(in_array($data['department'], $organization->getDepartments(), true)) {
+            foreach ($organizations as $organization) {
+                if (in_array($data['department'], $organization->getDepartments(), true)) {
                     $data['organization'] = $organization->getId();
                     break;
                 }
@@ -115,14 +118,14 @@ class ShibbolethController extends Controller
         }
 
         // institution
-        if( ! empty($attrs['supannEtablissement']) && ! empty($data['organization'])) {
-            $rep         = $em->getRepository('SygeforTrainingBundle:Term\Institution');
-            $name        = preg_replace('/^\{[^\}]*\}/', '', $attrs['supannEtablissement']);
+        if (!empty($attrs['supannEtablissement']) && !empty($data['organization'])) {
+            $rep = $em->getRepository('SygeforTrainingBundle:Term\Institution');
+            $name = preg_replace('/^\{[^\}]*\}/', '', $attrs['supannEtablissement']);
             $institution = $rep->findOneBy(array('organization' => $data['organization'], 'name' => $name));
-            if ( ! $institution) {
+            if (!$institution) {
                 $data['otherInstitution'] = $name;
-                $institution              = $rep->findOneBy(array('organization' => $data['organization'], 'machineName' => 'other'));
-                if ( ! $institution) {
+                $institution = $rep->findOneBy(array('organization' => $data['organization'], 'machineName' => 'other'));
+                if (!$institution) {
                     $institution = $rep->findOneBy(array('organization' => null, 'machineName' => 'other'));
                 }
             }
@@ -130,7 +133,7 @@ class ShibbolethController extends Controller
         }
 
         // Fonction, statut
-        if( ! empty($attrs['supannRoleGenerique'])) {
+        if (!empty($attrs['supannRoleGenerique'])) {
             $data['status'] = $attrs['supannRoleGenerique'];
         }
 
