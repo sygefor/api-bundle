@@ -86,10 +86,16 @@
                     {% if session.schedule %}
                         - <strong>Horaires</strong> : {{ session.schedule }}
                     {% endif %}
-                    {% if session.hourNumber %}
-                        - <strong>Durée</strong> : {{ session.hourNumber }} heures
-                        {% if session.dayNumber %}
-                            sur {{ session.dayNumber }} jours
+                    {{% if (session.hourNumber is defined and session.hourNumber > 0) or (session.dayNumber is defined and session.dayNumber > 0) %}
+                    - <strong>Durée</strong> :
+                        {% if session.hourNumber is defined and session.hourNumber > 0 %}
+                        {{ session.hourNumber }} heure{% if session.hourNumber > 1 %}s{% endif %}
+                        {% endif %}
+                        {% if (session.hourNumber is defined and session.hourNumber > 0) and (session.dayNumber is defined and session.dayNumber > 0) %}
+                            &nbsp;sur&nbsp;
+                        {% endif %}
+                        {% if session.dayNumber is defined and session.dayNumber > 0  %}
+                            {{ session.dayNumber }} jour{% if session.dayNumber > 1 %}s{% endif %}
                         {% endif %}
                     {% endif %}
                     {% if session.place %}
@@ -175,21 +181,24 @@
 
     <div class="no-pb">
         <h3>Coût des stages</h3>
-        {% if trainee.institution %}
-            <p class="border">Gratuits pour toute personne relevant du Ministère de l’Education Nationale, des Grands Etablissements de Recherche et pour les étudiants.</p>
-        {% else %}
-            <p>Vous êtes personnel hors Enseignement supérieur, Recherche et Education Nationale. Les stages de votre compagnie sont payants et devront être pris en charge par votre administration ou votre entreprise. Vous devez faire remplir l'encadré ci-dessous et nous le retourner dans les plus brefs délais :</p>
-            <p class="lh border">
-                Je soussigné(e) : ...........................................................................<br>
-                Directeur(trice) de : .......................................................................<br>
-                Atteste prendre en charge les coûts d'inscription du stagiaire, que je réglerai à réception de facture (30 jours fin de mois).<br>
-                Montant : ..................... Euros<br>
-                Date :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Signature :
-            </p>
-        {% endif %}
-        <p>La signature de ce bulletin d'autorisation signifie que vous acceptez nos conditions d’inscription, précisées dans Sygefor, sans préjuger de la validation par le CRFCB de votre demande de stage.</p>
+        <p>
+            Les formations sont facturées selon le tarif voté en vigueur,
+            à l'exception des établissements sous convention avec le CNRS ou dans le cadre de subventions ou contrats spécifiques.
+        </p>
+        <p class="lh border">
+            Je soussigné(e) : ...........................................................................<br>
+            Directeur(trice) de : .......................................................................<br>
+            Atteste prendre en charge les coûts d'inscription du stagiaire, que je réglerai à réception de facture (30 jours fin de mois).<br>
+            Montant : ..................... Euros<br>
+            Date :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Signature :
+        </p>
+        <p>
+            La signature de ce bulletin signifie que vous acceptez les conditions d'inscriptions,
+            sans préjuger de la validation par le CRFCB de votre demande de stage.
+        </p>
         <p>Fait à &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             Le &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            Signature :</p>
+            Signature :
+        </p>
     </div>
 {% endblock %}

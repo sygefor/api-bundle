@@ -3,6 +3,7 @@
 namespace Sygefor\Bundle\ApiBundle\Controller\Account;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\QueryBuilder;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -298,63 +299,66 @@ abstract class AbstractRegistrationAccountController extends Controller
         }
 
         foreach ($inscriptionIdsByOrganization as $organizationId => $inscriptionIds) {
-            /** @var EmailTemplate $checkoutEmailTemplate */
-            $checkoutEmailTemplate = $this->getDoctrine()
-                ->getRepository(EmailTemplate::class)
-                ->findOneBy(array(
-                    'organization' => $this->getDoctrine()
-                        ->getRepository(Organization::class)
-                        ->find($organizationId),
-                    'inscriptionStatus' => $this->getDoctrine()
-                        ->getRepository(InscriptionStatus::class)
-                        ->createQueryBuilder('s')
-                        ->where('s.status = :status')
-                        ->andWhere('s.organization = :organization')
-                        ->orWhere('s.organization IS NULL')
-                        ->setParameter('status', InscriptionStatus::STATUS_PENDING)
-                        ->setParameter('organization', $this->getDoctrine()
-                            ->getRepository(Organization::class)
-                            ->find($organizationId))
-                        ->getQuery()
-                        ->execute(),
-                ));
+            /** @var Organization $org */
+            $org = $this->getDoctrine()->getRepository(Organization::class)->find($organizationId);
 
-            // generate authorization forms
-            $attachments = array();
-            // send the mail if attachment fails
-            try {
-                // knp_snappy doest not work locally
-                if ($this->get('kernel')->getEnvironment() !== 'dev') {
-                    $organizationInscriptions = $this->getDoctrine()
-                        ->getRepository($this->inscriptionClass)
-                        ->findBy(array('id' => $inscriptionIds));
-                    $forms = $this->getAuthorizationForms($trainee, $organizationInscriptions, $this->sendCheckoutNotificationTemplates);
-                    foreach ($forms as $code => $template) {
-                        foreach ($template as $key => $html) {
-                            $data = $this->get('knp_snappy.pdf')
-                                ->getOutputFromHtml($html, array('print-media-type' => null));
-                            $attachments[] = \Swift_Attachment::newInstance($data, 'formulaire_' . $key . $code . '.pdf', 'application/pdf');
+            /** @var QueryBuilder $qb */
+            $qb = $this->getDoctrine()->getRepository(InscriptionStatus::class)->createQueryBuilder('s');
+            /** @var InscriptionStatus $inscriptionStatus */
+            $inscriptionStatus = $qb
+                ->andWhere('s.organization = :organization')
+                ->orWhere('s.organization IS NULL')
+                ->andWhere('s.status = :status')
+                ->setParameter('status', InscriptionStatus::STATUS_PENDING)
+                ->setParameter('organization', $org)
+                ->setMaxResults(1)
+                ->getQuery()->execute();
+
+            if ($inscriptionStatus) {
+                /** @var EmailTemplate $checkoutEmailTemplate */
+                $checkoutEmailTemplate = $this->getDoctrine()->getRepository(EmailTemplate::class)
+                    ->findOneBy(array(
+                        'organization' => $this->getDoctrine()->getRepository(Organization::class)->find($organizationId),
+                        'inscriptionStatus' => $inscriptionStatus
+                    ));
+
+                // generate authorization forms
+                $attachments = array();
+                // send the mail if attachment fails
+                try {
+                    // knp_snappy doest not work locally
+                    if ($this->get('kernel')->getEnvironment() !== 'dev') {
+                        $organizationInscriptions = $this->getDoctrine()
+                            ->getRepository($this->inscriptionClass)
+                            ->findBy(array('id' => $inscriptionIds));
+                        $forms = $this->getAuthorizationForms($trainee, $organizationInscriptions, $this->sendCheckoutNotificationTemplates);
+                        foreach ($forms as $code => $template) {
+                            foreach ($template as $key => $html) {
+                                $data = $this->get('knp_snappy.pdf')
+                                    ->getOutputFromHtml($html, array('print-media-type' => null));
+                                $attachments[] = \Swift_Attachment::newInstance($data, 'formulaire_' . $key . $code . '.pdf', 'application/pdf');
+                            }
                         }
                     }
+                } catch (\Exception $e) {
+                    $this->get('logger')
+                        ->emergency('Attachment generation error');
+                    $this->get('logger')->emergency($e->getMessage());
                 }
-            } catch (\Exception $e) {
-                $this->get('logger')
-                    ->emergency('Attachment generation error');
-                $this->get('logger')->emergency($e->getMessage());
-            }
 
-            if ($checkoutEmailTemplate) {
-                $this->get('sygefor_core.batch.email')->execute(
-                    $inscriptionIds,
-                    array(
-                        'targetClass' => $this->inscriptionClass,
-                        'preview'     => false,
-                        'subject'     => $checkoutEmailTemplate->getSubject(),
-                        'message'     => $checkoutEmailTemplate->getBody(),
-                        'attachment'  => empty($attachments) ? null : $attachments,
-                        'typeUser'    => get_class($this->getUser()),
-                    )
-                );
+                if ($checkoutEmailTemplate) {
+                    $this->get('sygefor_core.batch.email')->execute(
+                        $inscriptionIds,
+                        array(
+                            'targetClass' => $this->inscriptionClass,
+                            'preview' => false,
+                            'subject' => $checkoutEmailTemplate->getSubject(),
+                            'message' => $checkoutEmailTemplate->getBody(),
+                            'attachment' => empty($attachments) ? null : $attachments,
+                            'typeUser' => get_class($this->getUser()),
+                        )
+                    );
+                }
             }
         }
     }

@@ -91,6 +91,7 @@ class TaxonomyController extends Controller
         /** @var SearchService $search */
         $search = $this->get('sygefor_institution.search');
         $search->setSize(99999);
+        $search->addSort('name.source');
 
         // limit available source fields
         $search->setSource(array('id', 'name', 'organization.id'));
