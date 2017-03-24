@@ -86,7 +86,7 @@
                     {% if session.schedule %}
                         - <strong>Horaires</strong> : {{ session.schedule }}
                     {% endif %}
-                    {{% if (session.hourNumber is defined and session.hourNumber > 0) or (session.dayNumber is defined and session.dayNumber > 0) %}
+                    {% if (session.hourNumber is defined and session.hourNumber > 0) or (session.dayNumber is defined and session.dayNumber > 0) %}
                     - <strong>Durée</strong> :
                         {% if session.hourNumber is defined and session.hourNumber > 0 %}
                         {{ session.hourNumber }} heure{% if session.hourNumber > 1 %}s{% endif %}
