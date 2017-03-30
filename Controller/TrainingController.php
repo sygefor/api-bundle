@@ -57,7 +57,6 @@ class TrainingController extends AbstractController
           'description',
           'program',
           'prerequisite',
-          'interventionType',
           'publicType',
           'firstSessionPeriodSemester',
           'firstSessionPeriodYear',
