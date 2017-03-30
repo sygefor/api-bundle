@@ -77,7 +77,7 @@
         <ul>
             {% for session in sessions %}
                 <li>
-                    <strong>{{ session.training.typeLabel }} n°{{ session.training.number }} : {{ session.training.name }}</strong><br>
+                    <strong>{{ session.training.typeLabel }} n°{{ session.training.trainingCode }} : {{ session.training.name }}</strong><br>
                     {% if (session.dateEnd) or (session.dateBegin | date('d/m/Y') == session.dateEnd | date('d/m/Y')) %}
                         <strong>Dates</strong> : du {{ session.dateBegin | date('d/m/Y') }} au {{ session.dateEnd | date('d/m/Y') }}
                     {% else %}
