@@ -353,6 +353,7 @@ abstract class AbstractRegistrationAccountController extends Controller
                             'targetClass' => $this->inscriptionClass,
                             'preview' => false,
                             'subject' => $checkoutEmailTemplate->getSubject(),
+                            'cc' => $checkoutEmailTemplate->getCc(),
                             'message' => $checkoutEmailTemplate->getBody(),
                             'attachment' => empty($attachments) ? null : $attachments,
                             'typeUser' => get_class($this->getUser()),

@@ -103,6 +103,7 @@ abstract class AbstractAnonymousAccountController extends Controller
             throw new BadRequestHttpException('Invalid token');
         }
         $trainee->setIsActive(true);
+        $trainee->setSendCredentialsMail(true);
         $em->flush();
 
         // redirect
@@ -125,10 +126,10 @@ abstract class AbstractAnonymousAccountController extends Controller
     {
         $em    = $this->getDoctrine()->getManager();
         $email = $request->get('email');
-        if( ! $email) {
+        if (!$email) {
             throw new BadRequestHttpException('You must provide an email.');
         }
-        $trainee = $em->getRepository('SygeforTraineeBundle:Trainee')->findByEmail($email);
+        $trainee = $em->getRepository('SygeforTraineeBundle:AbstractTrainee')->findByEmail($email);
 
         return array('exists' => $trainee ? true : false);
     }
@@ -143,7 +144,7 @@ abstract class AbstractAnonymousAccountController extends Controller
     {
         $em    = $this->getDoctrine()->getManager();
         $email = $request->get('email');
-        if ( ! $email) {
+        if (!$email) {
             throw new BadRequestHttpException('You must provide an email.');
         }
 
@@ -195,7 +196,7 @@ abstract class AbstractAnonymousAccountController extends Controller
                 ->setSubject('SYGEFOR : Réinitialisation de votre mot de passe')
                 ->setTo($trainee->getEmail())
                 ->setBody($this->renderView('SygeforApiBundle:Account:reset-password.txt.twig', array('trainee' => $trainee, 'resetUrl' => $resetUrl)));
-            $sent = $this->get('swiftmailer.mailer.local')->send($message);
+            $sent = $this->get('mailer')->send($message);
 
             return array('sent' => (bool) $sent);
 
@@ -222,8 +223,10 @@ abstract class AbstractAnonymousAccountController extends Controller
             $trainee->setShibbolethPersistentId($persistentId ? $persistentId : $email);
             $trainee->setEmail($email);
             $trainee->setIsActive(true);
+            $trainee->setSendCredentialsMail(true);
         }
         else {
+            $trainee->setSendCredentialsMail(false);
             $trainee->setSendActivationMail(array(
                 'redirect' => $request->get('redirect'),
             ));
@@ -239,8 +242,6 @@ abstract class AbstractAnonymousAccountController extends Controller
 
         // set isPaying from publicType
         //$trainee->setIsPaying($trainee->getPublicType()->getIsPaying());
-
-        //$trainee->setSendCredentialsMail(true);
     }
 
     /**
