@@ -26,7 +26,7 @@ class EmailController extends AbstractController
             throw new InvalidArgumentException('The trainer does not exist');
         }
         if ($trainer->isIsAllowSendMail() === false && $trainer->isIsAllowSendMail() !== null) {
-            return array('errors' => 'Vous ne pouvez pas envoyer de courriel à ce intervenant');
+            return array('errors' => 'Vous ne pouvez pas envoyer de courriel à cet intervenant');
         }
 
         $training = null;
