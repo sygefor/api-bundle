@@ -34,7 +34,7 @@ class SitemapController extends Controller
         //formations
         $urlset->addUrl(new Url($siteUrl . 'training'));
 
-        //formateurs
+        //intervenants
         $urlset->addUrl(new Url($siteUrl . 'trainers/extern'));
         $urlset->addUrl(new Url($siteUrl . 'trainers/organization'));
 
