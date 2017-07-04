@@ -110,7 +110,7 @@ class AttendanceAccountController extends Controller
             $signature = '/img/organization/' . $attendance->getSession()->getTraining()->getOrganization()->getCode() . '/signature.png';
         }
 
-        $pdf = $this->renderView('SygeforInscriptionBundle:Inscription:attestation.pdf.twig', array(
+        $pdf = $this->renderView('SygeforCNRSBundle:Inscription:attestation.pdf.twig', array(
             'inscription' => $attendance,
             'signature'   => $signature,
         ));
