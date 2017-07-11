@@ -63,6 +63,7 @@ class ShibbolethUserProvider implements ShibbolethUserProviderInterface
     {
         $em = $this->container->get('doctrine')->getManager();
         $email = $token->getAttribute('mail');
+        $email = mb_strtolower($email, 'UTF-8');
 
         $identityProvider = $token->getAttribute('identityProvider');
         $persistentId = $token->getAttribute('persistent_id');
