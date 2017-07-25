@@ -32,10 +32,10 @@ class OAuthTokenGenerator
      * @param OAuthStorage $storage
      * @param Serializer   $serializer
      */
-    function __construct(OAuth2 $server, OAuthStorage $storage, Serializer $serializer)
+    public function __construct(OAuth2 $server, OAuthStorage $storage, Serializer $serializer)
     {
-        $this->server     = $server;
-        $this->storage    = $storage;
+        $this->server = $server;
+        $this->storage = $storage;
         $this->serializer = $serializer;
     }
 
@@ -51,9 +51,9 @@ class OAuthTokenGenerator
      */
     public function generateToken($user, $clientId, $clientSecret = '', $data = array())
     {
-        $client        = $this->getClient($clientId, $clientSecret);
-        $token         = $this->server->createAccessToken($client, $user, null);
-        $userData      = (array) json_decode($this->serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('api', 'api.token'))));
+        $client = $this->getClient($clientId, $clientSecret);
+        $token = $this->server->createAccessToken($client, $user, null);
+        $userData = (array) json_decode($this->serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('api', 'api.token'))));
         $token['data'] = array_merge($userData, $data);
 
         return $token;
@@ -85,14 +85,13 @@ class OAuthTokenGenerator
     protected function getClient($clientId, $clientSecret)
     {
         $client = $this->storage->getClient($clientId);
-        if ( ! $client) {
+        if (!$client) {
             throw new OAuth2ServerException(OAuth2::HTTP_BAD_REQUEST, OAuth2::ERROR_INVALID_CLIENT, 'The client credentials are invalid');
         }
-        if ( ! $client->getPublic() && $this->storage->checkClientCredentials($client, $clientSecret) === false) {
+        if (!$client->getPublic() && $this->storage->checkClientCredentials($client, $clientSecret) === false) {
             throw new OAuth2ServerException(OAuth2::HTTP_BAD_REQUEST, OAuth2::ERROR_INVALID_CLIENT, 'The client credentials are invalid');
         }
 
         return $client;
     }
-
 }

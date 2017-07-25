@@ -8,7 +8,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sygefor\Bundle\ApiBundle\Form\Type\ProfileType;
-use Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,17 +32,17 @@ class ProfileAccountController extends Controller
     {
         /** @var AbstractTrainee $trainee */
         $trainee = $this->getUser();
-        if($request->getMethod() === 'POST') {
+        if ($request->getMethod() === 'POST') {
             $form = $this->createForm(new ProfileType($this->get('sygefor_core.access_right_registry')), $trainee);
             // remove extra fields
             $data = ProfileType::extractRequestData($request, $form);
             // if shibboleth, remove email
-//            if($trainee->getShibbolethPersistentId()) { // permit shib users to change email
-//                $data['email'] = $trainee->getEmail();
-//            }
+            //            if($trainee->getShibbolethPersistentId()) { // permit shib users to change email
+            //                $data['email'] = $trainee->getEmail();
+            //            }
             // submit
             $form->submit($data, true);
-            if($form->isValid()) {
+            if ($form->isValid()) {
                 $this->getDoctrine()->getManager()->flush();
 
                 return array('updated' => true);

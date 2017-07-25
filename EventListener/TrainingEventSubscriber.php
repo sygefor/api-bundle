@@ -1,12 +1,12 @@
 <?php
 
-namespace Sygefor\Bundle\ApiBundle\Serializer\EventSubscriber;
+namespace Sygefor\Bundle\ApiBundle\EventListener;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Context;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\PreSerializeEvent;
-use Sygefor\Bundle\TrainingBundle\Entity\Training;
+use Sygefor\Bundle\CoreBundle\Entity\Training;
 
 /**
  * Training serialization event subscriber.
@@ -16,11 +16,11 @@ class TrainingEventSubscriber implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    static public function getSubscribedEvents()
+    public static function getSubscribedEvents()
     {
         return array(
             array(
-                'event'  => 'serializer.pre_serialize',
+                'event' => 'serializer.pre_serialize',
                 'method' => 'onPreSerialize',
             ),
         );
@@ -36,8 +36,8 @@ class TrainingEventSubscriber implements EventSubscriberInterface
         $training = $event->getObject();
         if ($training instanceof Training && self::isApiGroup($event->getContext())) {
             $sessions = $training->getSessions();
-            foreach($sessions as $key => $session) {
-                if ( ! $session->isDisplayOnline()) {
+            foreach ($sessions as $key => $session) {
+                if (!$session->isDisplayOnline()) {
                     unset($sessions[$key]);
                 }
             }
@@ -50,7 +50,7 @@ class TrainingEventSubscriber implements EventSubscriberInterface
      *
      * @return bool
      */
-    static public function isApiGroup(Context $context)
+    public static function isApiGroup(Context $context)
     {
         $groups = $context->attributes->get('groups');
         foreach ($groups->getOrElse(array()) as $group) {

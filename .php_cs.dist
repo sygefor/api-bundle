@@ -1,0 +1,19 @@
+<?php
+/**
+ * This file is part of the DATAtourisme project.
+ *
+ * @author Conjecto <contact@conjecto.com>
+ *
+ * For the full copyright and license information, please view the LICENSE file that was distributed with this source code.
+ *
+ */
+
+$finder = PhpCsFixer\Finder::create()
+    ->exclude('var/cache')
+    ->in(array(__DIR__));
+
+return PhpCsFixer\Config::create()
+    ->setRules(array(
+        '@Symfony' => true
+    ))
+    ->setFinder($finder);

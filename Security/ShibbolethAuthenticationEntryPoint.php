@@ -42,15 +42,14 @@ class ShibbolethAuthenticationEntryPoint extends BaseShibbolethAuthenticationEnt
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        if($authException && $authException instanceof BadCredentialsException) {
+        if ($authException && $authException instanceof BadCredentialsException) {
             //throw new PreconditionFailedHttpException($authException->getMessage());
             // redirect user to registration form
             $front_url = $this->container->getParameter('front_url');
-            $qs        = $request->getQueryString();
-            $url       = $front_url . '/login?shibboleth=1&error=1' . ($qs ? '&' . $qs : '');
+            $qs = $request->getQueryString();
+            $url = $front_url.'/login?shibboleth=1&error=1'.($qs ? '&'.$qs : '');
 
             return new RedirectResponse($url);
-
         }
 
         return parent::start($request, $authException);

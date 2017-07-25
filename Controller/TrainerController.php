@@ -7,14 +7,14 @@ use Elastica\Filter\BoolNot;
 use Elastica\Filter\Term;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sygefor\Bundle\CoreBundle\Search\SearchService;
+use Sygefor\Bundle\CoreBundle\Utils\Search\SearchService;
 
 /**
  * @Route("/api/trainer")
  */
 class TrainerController extends AbstractController
 {
-    static protected $authorizedFields = array(
+    protected static $authorizedFields = array(
       'trainer' => array(
         'id',
         'fullName',
@@ -50,8 +50,8 @@ class TrainerController extends AbstractController
         ));
 
         // filter session by registration set by public
-        $andFilter        = new BoolAnd();
-        $isPublicFilter   = new Term(array('isPublic' => true));
+        $andFilter = new BoolAnd();
+        $isPublicFilter = new Term(array('isPublic' => true));
         $isArchivedFilter = new BoolNot((new Term(array('isArchived' => true))));
         $andFilter->addFilter($isPublicFilter);
         $andFilter->addFilter($isArchivedFilter);
@@ -59,12 +59,11 @@ class TrainerController extends AbstractController
 
         // add trainings infos
         $results = $search->search();
-        foreach($results['items'] as $key => $item) {
+        foreach ($results['items'] as $key => $item) {
             $results['items'][$key]['trainings'] = $this->getTrainings($item['id']);
         }
 
         return $results;
-
     }
 
     /**
@@ -87,19 +86,18 @@ class TrainerController extends AbstractController
         ));
 
         // filter session by registration set by public
-        $andFilter            = new BoolAnd();
+        $andFilter = new BoolAnd();
         $isOrganizationFilter = new Term(array('isOrganization' => true));
-//        $isPublicFilter = new Term(array('isPublic' => true));
+        //        $isPublicFilter = new Term(array('isPublic' => true));
         $isArchivedFilter = new BoolNot((new Term(array('isArchived' => true))));
         $andFilter->addFilter($isOrganizationFilter);
-//        $andFilter->addFilter($isPublicFilter);
+        //        $andFilter->addFilter($isPublicFilter);
         $andFilter->addFilter($isArchivedFilter);
         $search->filterQuery($andFilter);
 
         $search->addTermsAggregation('organizations', 'organization.name');
 
         return $search->search();
-
     }
 
     /**
@@ -109,7 +107,7 @@ class TrainerController extends AbstractController
      */
     private function getTrainings($trainerId)
     {
-/** @var SearchService $search */
+        /** @var SearchService $search */
         //$search = $this->get('sygefor_training.search');
         $search = new SearchService($this->get('fos_elastica.index.sygefor3.training'));
         $search->setSource(array('name', 'theme', 'sessions', 'organization'));
@@ -127,12 +125,12 @@ class TrainerController extends AbstractController
         $search->setSize(5);
 
         $results = $search->search();
-        $items   = $results['items'];
+        $items = $results['items'];
 
-        foreach($items as $key => $item) {
+        foreach ($items as $key => $item) {
             $sessions = $items[$key]['sessions'];
-            $years    = array();
-            foreach($sessions as $session) {
+            $years = array();
+            foreach ($sessions as $session) {
                 $years[] = $session['year'];
             }
             unset($items[$key]['sessions']);

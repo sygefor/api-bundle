@@ -1,16 +1,26 @@
 {
   "name": "sygefor/api-bundle",
-  "license": "MIT",
-  "keywords": ["sygefor","api"],
+  "description": "API bundle of Sygefor3 Application",
+  "version": "3.2",
   "type": "symfony-bundle",
+  "license": "MIT",
+  "keywords": ["sygefor"],
+  "authors": [
+    {
+      "name": "Conjecto",
+      "homepage": "http://www.conjecto.com"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "Sygefor\\Bundle\\ApiBundle\\": ""
     }
   },
-  "authors": [
-    {
-      "name": "Conjecto"
-    }
-  ]
+  "require": {
+    "php": ">=5.3.6",
+    "symfony/symfony": "^2.8"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.1"
+  }
 }

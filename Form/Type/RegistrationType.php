@@ -19,7 +19,7 @@ class RegistrationType extends ProfileType
         parent::buildForm($builder, $options);
         $builder->add('password', null,
           array(
-            'label'         => 'Mot de passe',
+            'label' => 'Mot de passe',
             'property_path' => 'plainPassword',
           ));
     }
@@ -30,10 +30,10 @@ class RegistrationType extends ProfileType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'csrf_protection'       => false,
-            'validation_groups'     => array('Default', 'trainee', 'api.profile', 'api.registration'),
+            'csrf_protection' => false,
+            'validation_groups' => array('Default', 'trainee', 'api.profile', 'api.registration'),
             'enable_security_check' => false,
-            'allow_extra_fields'    => true,
+            'allow_extra_fields' => true,
         ));
     }
 }

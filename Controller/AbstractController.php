@@ -12,7 +12,7 @@ abstract class AbstractController extends Controller
     /**
      * @var array
      */
-    static protected $authorizedFields = array();
+    protected static $authorizedFields = array();
 
     /**
      * Protected function to help build authorized fields array.
@@ -22,13 +22,13 @@ abstract class AbstractController extends Controller
      *
      * @return array
      */
-    static protected function buildAuthorizedFieldsArray($source, $prefix = '') {
+    protected static function buildAuthorizedFieldsArray($source, $prefix = '')
+    {
         $array = array();
-        foreach(static::$authorizedFields[$source] as $key) {
-            $array[] = ($prefix ? $prefix . '.' : '') . $key;
+        foreach (static::$authorizedFields[$source] as $key) {
+            $array[] = ($prefix ? $prefix.'.' : '').$key;
         }
 
         return $array;
     }
-
 }

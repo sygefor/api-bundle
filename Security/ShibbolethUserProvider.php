@@ -5,7 +5,7 @@ namespace Sygefor\Bundle\ApiBundle\Security;
 use KULeuven\ShibbolethBundle\Security\ShibbolethUserProviderInterface;
 use KULeuven\ShibbolethBundle\Security\ShibbolethUserToken;
 use KULeuven\ShibbolethBundle\Service\Shibboleth;
-use Sygefor\Bundle\TraineeBundle\Entity\TraineeRepository;
+use Sygefor\Bundle\CoreBundle\Repository\TraineeRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -25,9 +25,9 @@ class ShibbolethUserProvider implements ShibbolethUserProviderInterface
     /**
      * {@inheritdoc}
      */
-    function __construct(ContainerInterface $container, TraineeRepository $repository)
+    public function __construct(ContainerInterface $container, TraineeRepository $repository)
     {
-        $this->container  = $container;
+        $this->container = $container;
         $this->repository = $repository;
     }
 
@@ -75,7 +75,7 @@ class ShibbolethUserProvider implements ShibbolethUserProviderInterface
 
         // else, build a custom one with eppn
         if (!$shibbolethId && $identityProvider && $eppn) {
-            $shibbolethId = $identityProvider . '!' . $eppn;
+            $shibbolethId = $identityProvider.'!'.$eppn;
         }
 
         // else, set it to 1

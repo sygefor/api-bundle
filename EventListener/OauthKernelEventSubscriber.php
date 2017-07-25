@@ -1,6 +1,6 @@
 <?php
 
-namespace Sygefor\Bundle\ApiBundle\HttpKernel\EventSubscriber;
+namespace Sygefor\Bundle\ApiBundle\EventListener;
 
 use FOS\OAuthServerBundle\Controller\TokenController;
 use FOS\OAuthServerBundle\Entity\ClientManager;
@@ -19,22 +19,23 @@ use Symfony\Component\Security\Core\User\AdvancedUserInterface;
  */
 class OauthKernelEventSubscriber implements EventSubscriberInterface
 {
-    /** @var ClientManager  */
+    /** @var ClientManager */
     private $clientManager;
 
-    /** @var OAuth2  */
+    /** @var OAuth2 */
     private $serverService;
 
-    /** @var Serializer  */
+    /** @var Serializer */
     private $serializer;
 
     /**
      * @param ClientManager $clientManager
      */
-    public function __construct(ClientManager $clientManager, OAuth2 $serverService, Serializer $serializer) {
+    public function __construct(ClientManager $clientManager, OAuth2 $serverService, Serializer $serializer)
+    {
         $this->clientManager = $clientManager;
         $this->serverService = $serverService;
-        $this->serializer    = $serializer;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -44,7 +45,7 @@ class OauthKernelEventSubscriber implements EventSubscriberInterface
     {
         return array(
             KernelEvents::CONTROLLER => 'onKernelController',
-            KernelEvents::RESPONSE   => 'onKernelResponse',
+            KernelEvents::RESPONSE => 'onKernelResponse',
         );
     }
 
@@ -56,14 +57,14 @@ class OauthKernelEventSubscriber implements EventSubscriberInterface
     public function onKernelController(FilterControllerEvent $event)
     {
         $controller = current($event->getController());
-        $request    = $event->getRequest();
+        $request = $event->getRequest();
 
-        if($controller instanceof TokenController) {
-            $clientId   = $request->get('client_id');
-            $grantType  = $request->get('grant_type');
-            $client     = $this->clientManager->findClientByPublicId($clientId);
+        if ($controller instanceof TokenController) {
+            $clientId = $request->get('client_id');
+            $grantType = $request->get('grant_type');
+            $client = $this->clientManager->findClientByPublicId($clientId);
             $authorized = in_array($grantType, array('password', 'refresh_token'), true);
-            if($authorized && $client && $client->getPublic()) {
+            if ($authorized && $client && $client->getPublic()) {
                 $prop = $request->getMethod() === 'POST' ? 'request' : 'query';
                 $request->$prop->set('client_secret', $client->getSecret());
             }
@@ -79,7 +80,7 @@ class OauthKernelEventSubscriber implements EventSubscriberInterface
     {
         $controller = $event->getRequest()->get('_controller');
         // check provenance
-        if($controller === 'fos_oauth_server.controller.token:tokenAction' && $event->getResponse()->getStatusCode() === 200) {
+        if ($controller === 'fos_oauth_server.controller.token:tokenAction' && $event->getResponse()->getStatusCode() === 200) {
             // decode content
             $data = json_decode($event->getResponse()->getContent(), true);
             // get the token
@@ -90,7 +91,7 @@ class OauthKernelEventSubscriber implements EventSubscriberInterface
                 $user = $accessToken->getUser();
 
                 // disallow disabled user
-                if($user instanceof AdvancedUserInterface && ! $user->isEnabled()) {
+                if ($user instanceof AdvancedUserInterface && !$user->isEnabled()) {
                     $e = new OAuth2ServerException(403, 'disabled_user');
                     $event->setResponse($e->getHttpResponse());
                 } else {

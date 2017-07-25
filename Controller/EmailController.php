@@ -5,7 +5,7 @@ namespace Sygefor\Bundle\ApiBundle\Controller;
 use Doctrine\Common\Proxy\Exception\InvalidArgumentException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sygefor\Bundle\TrainerBundle\Entity\AbstractTrainer;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainer;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -21,7 +21,7 @@ class EmailController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
         /** @var AbstractTrainer $trainer */
-        $trainer = $em->getRepository('SygeforTrainerBundle:AbstractTrainer')->find($request->request->get('to'));
+        $trainer = $em->getRepository('SygeforCoreBundle:AbstractTrainer')->find($request->request->get('to'));
         if (!$trainer) {
             throw new InvalidArgumentException('The trainer does not exist');
         }
@@ -31,13 +31,13 @@ class EmailController extends AbstractController
 
         $training = null;
         if ($request->request->get('training')) {
-            $training = $em->getRepository('SygeforTrainingBundle:Training\AbstractTraining')->find($request->request->get('training'));
-            if ( ! $training) {
+            $training = $em->getRepository('SygeforCoreBundle:Training\AbstractTraining')->find($request->request->get('training'));
+            if (!$training) {
                 throw new InvalidArgumentException('The training does not exist');
             }
         }
 
-        if( ! filter_var($request->request->get('from'), FILTER_VALIDATE_EMAIL)){
+        if (!filter_var($request->request->get('from'), FILTER_VALIDATE_EMAIL)) {
             return array('errors' => 'Veuillez renseigner une adresse électronique valide');
         }
 
@@ -45,16 +45,16 @@ class EmailController extends AbstractController
         $message->setFrom($this->container->getParameter('mailer_from'), 'Sygefor3');
         $message->setReplyTo($request->request->get('from'));
         $message->setTo($trainer->getEmail());
-        $message->setSubject("Message d'un stagiaire - " . $request->request->get('subject'));
+        $message->setSubject("Message d'un stagiaire - ".$request->request->get('subject'));
         $body = $request->request->get('body');
 
         // add training link and name
         if ($training) {
-            $body = 'Stage: ' . $this->getParameter('front_url') . '/#/program/' . $training->getId() . '?from=true / ' . $training->getName() . "\n" . $body;
+            $body = 'Stage: '.$this->getParameter('front_url').'/#/program/'.$training->getId().'?from=true / '.$training->getName()."\n".$body;
         }
 
         // add trainee email
-        $body = 'Courriel du stagiaire : ' . $request->request->get('from') . "\n\n" . $body;
+        $body = 'Courriel du stagiaire : '.$request->request->get('from')."\n\n".$body;
 
         $message->setBody($body);
 

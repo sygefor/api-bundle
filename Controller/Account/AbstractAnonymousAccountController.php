@@ -10,8 +10,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sygefor\Bundle\ApiBundle\Form\Type\RegistrationType;
-use Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee;
-use Sygefor\Bundle\TraineeBundle\Entity\TraineeRepository;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
+use Sygefor\Bundle\CoreBundle\Repository\TraineeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -43,7 +43,7 @@ abstract class AbstractAnonymousAccountController extends Controller
         try {
             /** @var AbstractTrainee $trainee */
             $trainee = new $this->traineeClass();
-            $form    = $this->createForm(RegistrationType::class, $trainee);
+            $form = $this->createForm(RegistrationType::class, $trainee);
             // remove extra fields
             //$data = RegistrationType::extractRequestData($request, $form);
             $data = $request->request->all();
@@ -54,8 +54,8 @@ abstract class AbstractAnonymousAccountController extends Controller
             // submit
             $form->submit($data, true);
             if ($form->isValid()) {
-                $em         = $this->getDoctrine()->getManager();
-                $token      = $this->get('security.context')->getToken();
+                $em = $this->getDoctrine()->getManager();
+                $token = $this->get('security.context')->getToken();
                 $shibboleth = ($request->get('shibboleth') && $token->hasAttribute('mail') && $token->getAttribute('mail'));
                 $this->registerShibbolethTrainee($request, $trainee, $shibboleth);
                 $em->persist($trainee);
@@ -70,8 +70,7 @@ abstract class AbstractAnonymousAccountController extends Controller
                 }
 
                 return array('registered' => true);
-            }
-            else {
+            } else {
                 /* @var FormError $error */
                 $parser = $this->get('sygefor_api.form_errors.parser');
                 // log errors
@@ -79,8 +78,7 @@ abstract class AbstractAnonymousAccountController extends Controller
 
                 return new View(array('errors' => $parser->parseErrors($form)), 422);
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             // log exception
             $logger->critical(get_class($e));
             $logger->critical($e->getMessage());
@@ -92,14 +90,14 @@ abstract class AbstractAnonymousAccountController extends Controller
      * Activate an account.
      *
      * @Route("/activate/{id}/{token}", name="api.account.activate", defaults={"_format" = "json"})
-     * @ParamConverter("trainee", class="SygeforTraineeBundle:AbstractTrainee", options={"id" = "id"})
+     * @ParamConverter("trainee", class="SygeforCoreBundle:AbstractTrainee", options={"id" = "id"})
      * @Rest\View()
      */
     public function activateAction(AbstractTrainee $trainee, $token, Request $request)
     {
-        $em   = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
         $hash = hash('sha256', $trainee->getId());
-        if($token !== $hash) {
+        if ($token !== $hash) {
             throw new BadRequestHttpException('Invalid token');
         }
         $trainee->setIsActive(true);
@@ -108,9 +106,9 @@ abstract class AbstractAnonymousAccountController extends Controller
 
         // redirect
         $front_url = $this->container->getParameter('front_url');
-        $url       = $front_url . '/login?activated=1';
-        if($request->getQueryString()) {
-            $url .= '&' . $request->getQueryString();
+        $url = $front_url.'/login?activated=1';
+        if ($request->getQueryString()) {
+            $url .= '&'.$request->getQueryString();
         }
 
         return new RedirectResponse($url);
@@ -124,12 +122,12 @@ abstract class AbstractAnonymousAccountController extends Controller
      */
     public function emailCheckAction(Request $request)
     {
-        $em    = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
         $email = $request->get('email');
         if (!$email) {
             throw new BadRequestHttpException('You must provide an email.');
         }
-        $trainee = $em->getRepository('SygeforTraineeBundle:AbstractTrainee')->findByEmail($email);
+        $trainee = $em->getRepository('SygeforCoreBundle:AbstractTrainee')->findByEmail($email);
 
         return array('exists' => $trainee ? true : false);
     }
@@ -142,24 +140,24 @@ abstract class AbstractAnonymousAccountController extends Controller
      */
     public function resetPasswordAction(Request $request)
     {
-        $em    = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
         $email = $request->get('email');
         if (!$email) {
             throw new BadRequestHttpException('You must provide an email.');
         }
 
         /** @var AbstractTrainee $trainee */
-        $trainee = $em->getRepository('SygeforTraineeBundle:AbstractTrainee')->findOneByEmail($email);
-        if ( ! $trainee) {
-            throw new NotFoundHttpException('Unknown account : ' . $email);
+        $trainee = $em->getRepository('SygeforCoreBundle:AbstractTrainee')->findOneByEmail($email);
+        if (!$trainee) {
+            throw new NotFoundHttpException('Unknown account : '.$email);
         }
 
         if ($token = $request->get('token')) {
             list($timestamp, $hash) = explode('.', $token);
-            $password               = $request->get('password');
+            $password = $request->get('password');
 
             // check request validity
-            if ( ! $hash || ! $timestamp || ! $password) {
+            if (!$hash || !$timestamp || !$password) {
                 throw new BadRequestHttpException('Invalid request.');
             }
 
@@ -180,14 +178,12 @@ abstract class AbstractAnonymousAccountController extends Controller
             $em->flush();
 
             return array('updated' => true);
-
-        }
-        else {
+        } else {
             $timestamp = time();
-            $token     = $timestamp . '.' . $this->getTimestampedHash($trainee, $timestamp);
+            $token = $timestamp.'.'.$this->getTimestampedHash($trainee, $timestamp);
 
             // Send a email with a generated link with token
-            $resetUrl = $this->container->getParameter('front_url') . "/reset-password/$email/$token";
+            $resetUrl = $this->container->getParameter('front_url')."/reset-password/$email/$token";
 
             // send the mail
             $message = \Swift_Message::newInstance()
@@ -199,7 +195,6 @@ abstract class AbstractAnonymousAccountController extends Controller
             $sent = $this->get('mailer')->send($message);
 
             return array('sent' => (bool) $sent);
-
         }
     }
 
@@ -219,13 +214,12 @@ abstract class AbstractAnonymousAccountController extends Controller
             // if shibboleth, save persistent_id and force mail
             // and set active to true
             $persistentId = $token->getAttribute('persistent_id');
-            $email        = $token->getAttribute('mail');
+            $email = $token->getAttribute('mail');
             $trainee->setShibbolethPersistentId($persistentId ? $persistentId : $email);
             $trainee->setEmail($email);
             $trainee->setIsActive(true);
             $trainee->setSendCredentialsMail(true);
-        }
-        else {
+        } else {
             $trainee->setSendCredentialsMail(false);
             $trainee->setSendActivationMail(array(
                 'redirect' => $request->get('redirect'),
@@ -252,6 +246,6 @@ abstract class AbstractAnonymousAccountController extends Controller
      */
     private function getTimestampedHash(AbstractTrainee $trainee, $timestamp)
     {
-        return hash('sha256', $timestamp . '.' . $trainee->getPassword());
+        return hash('sha256', $timestamp.'.'.$trainee->getPassword());
     }
 }

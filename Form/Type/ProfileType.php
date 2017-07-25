@@ -2,8 +2,8 @@
 
 namespace Sygefor\Bundle\ApiBundle\Form\Type;
 
-use Sygefor\Bundle\InstitutionBundle\Form\BaseInstitutionType;
-use Sygefor\Bundle\TraineeBundle\Form\BaseTraineeType;
+use Sygefor\Bundle\CoreBundle\Form\BaseInstitutionType;
+use Sygefor\Bundle\CoreBundle\Form\BaseTraineeType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -28,11 +28,10 @@ class ProfileType extends BaseTraineeType
             $form = $event->getForm();
 
             // institution
-            if ( ! empty($data['institution'])) {
+            if (!empty($data['institution'])) {
                 // todo
                 $this->addInstitutionField($form, $data['organization']);
-            }
-            else {
+            } else {
                 $this->addCustomInstitutionField($form);
                 $data['institution'] = array_merge($data['_institution'], array('organization' => $data['organization']));
                 unset($data['_institution']);
@@ -49,9 +48,9 @@ class ProfileType extends BaseTraineeType
     protected function addCustomInstitutionField(FormInterface $form)
     {
         $form->add('institution', BaseInstitutionType::class, array(
-            'required'           => true,
+            'required' => true,
             'allow_extra_fields' => true,
-            'constraints'        => array(
+            'constraints' => array(
                 new Valid(),
             ),
         ));
@@ -63,10 +62,10 @@ class ProfileType extends BaseTraineeType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'csrf_protection'       => false,
-            'validation_groups'     => array('Default', 'trainee', 'api.profile'),
+            'csrf_protection' => false,
+            'validation_groups' => array('Default', 'trainee', 'api.profile'),
             'enable_security_check' => false,
-            'allow_extra_fields'    => true,
+            'allow_extra_fields' => true,
         ));
     }
 
@@ -78,13 +77,14 @@ class ProfileType extends BaseTraineeType
      *
      * @return array
      */
-    static public function extractRequestData(Request $request, FormInterface $form) {
+    public static function extractRequestData(Request $request, FormInterface $form)
+    {
         // remove extra fields
         $data = $request->request->all();
         $keys = array_keys($form->all());
-//        $keys = array_merge($keys, array('institution', 'disciplinary', 'professionalSituation'));
-//        $data = array_intersect_key($data, array_flip($keys));
-//        $data = array_merge(array("addressType" => 0), $data);
+        //        $keys = array_merge($keys, array('institution', 'disciplinary', 'professionalSituation'));
+        //        $data = array_intersect_key($data, array_flip($keys));
+        //        $data = array_merge(array("addressType" => 0), $data);
         return $data;
     }
 }
