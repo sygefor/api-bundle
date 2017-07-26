@@ -191,7 +191,7 @@ abstract class AbstractAnonymousAccountController extends Controller
                 ->setReplyTo($trainee->getOrganization()->getEmail())
                 ->setSubject('SYGEFOR : Réinitialisation de votre mot de passe')
                 ->setTo($trainee->getEmail())
-                ->setBody($this->renderView('SygeforApiBundle:Account:reset-password.txt.twig', array('trainee' => $trainee, 'resetUrl' => $resetUrl)));
+                ->setBody($this->renderView('account/reset-password.txt.twig', array('trainee' => $trainee, 'resetUrl' => $resetUrl)));
             $sent = $this->get('mailer')->send($message);
 
             return array('sent' => (bool) $sent);
