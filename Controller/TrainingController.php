@@ -9,8 +9,8 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sygefor\Bundle\CoreBundle\Utils\Search\SearchService;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -124,7 +124,7 @@ class TrainingController extends AbstractController
      * Training REST API.
      *
      * @Route("/{id}", requirements={"id" = "\d+"}, name="api.training.detail", defaults={"_format" = "json"})
-     * @ParamConverter("training", class="SygeforCoreBundle:Training\AbstractTraining", options={"id" = "id"})
+     * @ParamConverter("training", class="SygeforCoreBundle:AbstractTraining", options={"id" = "id"})
      * @Rest\View(serializerGroups={"api", "api.training"}, serializerEnableMaxDepthChecks=true)
      */
     public function trainingAction(AbstractTraining $training)

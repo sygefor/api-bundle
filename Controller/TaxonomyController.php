@@ -28,7 +28,7 @@ class TaxonomyController extends Controller
     {
         $em = $this->get('doctrine')->getManager();
         $public_map = array(
-            'organization' => 'Sygefor\Bundle\CoreBundle\Entity\Organization',
+            'organization' => 'Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization',
             'title' => 'sygefor_trainee.vocabulary_title',
             'publicType' => 'sygefor_trainee.vocabulary_public_type',
             'inscriptionStatus' => 'sygefor_trainee.vocabulary_inscription_status',

@@ -2,13 +2,14 @@
 
 namespace Sygefor\Bundle\ApiBundle\Form\Type;
 
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class RegistrationType.
  */
-class RegistrationType extends ProfileType
+class RegistrationType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -35,5 +36,10 @@ class RegistrationType extends ProfileType
             'enable_security_check' => false,
             'allow_extra_fields' => true,
         ));
+    }
+
+    public function getParent()
+    {
+        return AbstractProfileType::class;
     }
 }

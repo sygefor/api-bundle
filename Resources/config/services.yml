@@ -1,4 +1,12 @@
 services:
+    # user provider
+    sygefor_api.trainee_repository:
+        class: Sygefor\Bundle\ApiBundle\Repository\TraineeRepository
+        factory_service:  doctrine
+        factory_method:   getRepository
+        arguments:
+            - 'Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee'
+
     # override
     security.authentication.entry_point.shibboleth:
       class: Sygefor\Bundle\ApiBundle\Security\ShibbolethAuthenticationEntryPoint
@@ -11,7 +19,7 @@ services:
         class: Sygefor\Bundle\ApiBundle\Security\ShibbolethUserProvider
         arguments:
             - "@service_container"
-            - "@sygefor_core.trainee_repository"
+            - "@sygefor_api.trainee_repository"
 
     # oauth token generator
     sygefor_api.oauth.token_generator:

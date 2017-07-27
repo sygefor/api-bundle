@@ -3,7 +3,6 @@
 namespace Sygefor\Bundle\ApiBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -14,7 +13,6 @@ class ProxyController extends Controller
 {
     /**
      * @Route("/proxy.html", name="api.xdomain.proxy")
-     * @Template()
      */
     public function proxyAction(Request $request)
     {
@@ -24,9 +22,9 @@ class ProxyController extends Controller
         $host = $matches[1];
         $path = $matches[2];
 
-        return array(
-          'host' => $host,
-          'path' => $path,
-        );
+        return $this->render('SygeforApiBundle:Proxy:proxy.html.twig', array(
+            'host' => $host,
+            'path' => $path,
+        ));
     }
 }

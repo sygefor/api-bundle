@@ -5,7 +5,7 @@ namespace Sygefor\Bundle\ApiBundle\Security;
 use KULeuven\ShibbolethBundle\Security\ShibbolethUserProviderInterface;
 use KULeuven\ShibbolethBundle\Security\ShibbolethUserToken;
 use KULeuven\ShibbolethBundle\Service\Shibboleth;
-use Sygefor\Bundle\CoreBundle\Repository\TraineeRepository;
+use Sygefor\Bundle\ApiBundle\Repository\TraineeRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;

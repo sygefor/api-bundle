@@ -8,12 +8,12 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sygefor\Bundle\CoreBundle\Entity\Organization;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
 use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
 use Sygefor\Bundle\CoreBundle\Entity\Term\EmailTemplate;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -296,7 +296,7 @@ abstract class AbstractRegistrationAccountController extends Controller
 
         foreach ($inscriptionIdsByOrganization as $organizationId => $inscriptionIds) {
             /** @var Organization $org */
-            $org = $this->getDoctrine()->getRepository(Organization::class)->find($organizationId);
+            $org = $this->getDoctrine()->getRepository(AbstractOrganization::class)->find($organizationId);
 
             /** @var QueryBuilder $qb */
             $qb = $this->getDoctrine()->getRepository(InscriptionStatus::class)->createQueryBuilder('s');
@@ -314,7 +314,7 @@ abstract class AbstractRegistrationAccountController extends Controller
                 /** @var EmailTemplate $checkoutEmailTemplate */
                 $checkoutEmailTemplate = $this->getDoctrine()->getRepository(EmailTemplate::class)
                     ->findOneBy(array(
-                        'organization' => $this->getDoctrine()->getRepository(Organization::class)->find($organizationId),
+                        'organization' => $this->getDoctrine()->getRepository(AbstractOrganization::class)->find($organizationId),
                         'inscriptionStatus' => $inscriptionStatus,
                     ));
 

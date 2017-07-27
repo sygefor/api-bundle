@@ -7,7 +7,7 @@ use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sygefor\Bundle\ApiBundle\Form\Type\ProfileType;
+use FrontBundle\Form\Type\ProfileType;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormError;

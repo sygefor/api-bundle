@@ -5,7 +5,7 @@ namespace Sygefor\Bundle\ApiBundle\EventListener;
 use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\PreSerializeEvent;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 
 /**
  * Session serialization event subscriber.

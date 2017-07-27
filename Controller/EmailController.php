@@ -31,7 +31,7 @@ class EmailController extends AbstractController
 
         $training = null;
         if ($request->request->get('training')) {
-            $training = $em->getRepository('SygeforCoreBundle:Training\AbstractTraining')->find($request->request->get('training'));
+            $training = $em->getRepository('SygeforCoreBundle:AbstractTraining')->find($request->request->get('training'));
             if (!$training) {
                 throw new InvalidArgumentException('The training does not exist');
             }
