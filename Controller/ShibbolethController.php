@@ -108,10 +108,10 @@ class ShibbolethController extends Controller
         if (!empty($data['department'])) {
             $organizations = $em->getRepository('SygeforCoreBundle:Organization')->findAll();
             foreach ($organizations as $organization) {
-                if (in_array($data['department'], $organization->getDepartments(), true)) {
-                    $data['organization'] = $organization->getId();
-                    break;
-                }
+//                if (in_array($data['department'], $organization->getDepartments(), true)) {
+//                    $data['organization'] = $organization->getId();
+//                    break;
+//                }
             }
         }
 
