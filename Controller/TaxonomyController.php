@@ -6,6 +6,7 @@ use Elastica\Filter\Term;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Sygefor\Bundle\CoreBundle\Utils\Search\SearchService;
 use Sygefor\Bundle\CoreBundle\Entity\Term\VocabularyInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -28,12 +29,12 @@ class TaxonomyController extends Controller
     {
         $em = $this->get('doctrine')->getManager();
         $public_map = array(
-            'organization' => 'Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization',
-            'title' => 'sygefor_trainee.vocabulary_title',
-            'publicType' => 'sygefor_trainee.vocabulary_public_type',
-            'inscriptionStatus' => 'sygefor_trainee.vocabulary_inscription_status',
-            'presenceStatus' => 'sygefor_trainee.vocabulary_presence_status',
+            'organization' => AbstractOrganization::class,
+            'title' => 'sygefor_core.vocabulary_title',
+            'inscriptionStatus' => 'sygefor_core.vocabulary_inscription_status',
+            'presenceStatus' => 'sygefor_core.vocabulary_presence_status',
             'theme' => 'sygefor_training.vocabulary_theme',
+            'publicType' => 'sygefor_trainee.vocabulary_public_type',
         );
 
         $return = array();

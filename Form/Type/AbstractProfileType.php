@@ -36,13 +36,7 @@ abstract class AbstractProfileType extends AbstractType
      */
     public static function extractRequestData(Request $request, FormInterface $form)
     {
-        // remove extra fields
-        $data = $request->request->all();
-        $keys = array_keys($form->all());
-        //        $keys = array_merge($keys, array('institution', 'disciplinary', 'professionalSituation'));
-        //        $data = array_intersect_key($data, array_flip($keys));
-        //        $data = array_merge(array("addressType" => 0), $data);
-        return $data;
+        return $request->request->all();
     }
 
     public function getParent()

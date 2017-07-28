@@ -10,8 +10,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sygefor\Bundle\ApiBundle\Form\Type\RegistrationType;
+use Sygefor\Bundle\ApiBundle\Repository\AccountRepository;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
-use Sygefor\Bundle\CoreBundle\Repository\TraineeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -230,7 +230,7 @@ abstract class AbstractAnonymousAccountController extends Controller
         if ($trainee->getPlainPassword()) {
             $password = $trainee->getPlainPassword();
         } else {
-            $password = TraineeRepository::generatePassword();
+            $password = AccountRepository::generatePassword();
         }
         $trainee->setPlainPassword($password);
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sygefor\Bundle\ApiBundle\EventListener;
+namespace Sygefor\Bundle\ApiBundle\EventListener\Serializer;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;

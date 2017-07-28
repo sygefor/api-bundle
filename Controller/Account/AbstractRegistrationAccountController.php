@@ -4,10 +4,6 @@ namespace Sygefor\Bundle\ApiBundle\Controller\Account;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
-use FOS\RestBundle\Controller\Annotations as Rest;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
 use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
@@ -20,6 +16,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use FOS\RestBundle\Controller\Annotations as Rest;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 /**
  * This controller regroup actions related to registration.
@@ -80,41 +80,13 @@ abstract class AbstractRegistrationAccountController extends Controller
 
             $sessions[$key] = $session;
         }
-
         // filter array
         $sessions = array_filter($sessions);
-
-        // retreive all modules for a longTraining and get modules sessions to update inscriptions
-        //        $training = $this->getDoctrine()->getRepository(LongTraining::class)->find(current($sessions)->getTraining()->getId());
-        //        $modulesSessions = array();
-        //        if ($training) {
-        //            $modules = $training->getModules();
-        //            foreach ($modules as $module) {
-        //                foreach ($module->getSessions() as $moduleSession) {
-        //                    $modulesSessions[$module->getId()][] = $moduleSession;
-        //                }
-        //            }
-        //        }
 
         // create inscriptions
         $inscriptions = array();
         $repository = $em->getRepository(AbstractInscription::class);
         foreach ($sessions as $session) {
-            // remove current session from array to keep only inscription to update
-            //            if ($training) {
-            //                foreach ($modulesSessions as $moduleId => $moduleSessions) {
-            //                    foreach ($moduleSessions as $key => $moduleSession) {
-            //                        if ($moduleSession->getId() === $session->getId()) {
-            //                            unset($modulesSessions[$moduleId][$key]);
-            //                            break;
-            //                        }
-            //                    }
-            //                    if ($moduleSession->getId() === $session->getId()) {
-            //                        break;
-            //                    }
-            //                }
-            //            }
-
             // try to find any existent inscription for this trainee
             /** @var AbstractInscription $inscription */
             $inscription = $repository->findOneBy(array(
@@ -124,23 +96,6 @@ abstract class AbstractRegistrationAccountController extends Controller
 
             // if inscription do not exists OR the trainee desisted
             if (!$inscription) {
-                // if trainee has already checkout a module session
-                //                if ($session->getModule() && isset($modulesSessions[$session->getModule()->getId()])) {
-                //                    $moduleSessions = $modulesSessions[$session->getModule()->getId()];
-                //                    // normally only one inscription maximum
-                //                    foreach ($moduleSessions as $key => $moduleSession) {
-                //                        $inscription = $repository->findOneBy(array(
-                //                            'session' => $moduleSession,
-                //                            'trainee' => $trainee,
-                //                        ));
-                //                        // update inscription session
-                //                        if ($inscription && !$inscription->getInscriptionStatus()->isMachineName('desist')) {
-                //                            $inscription->setSession($session);
-                //                            unset($modulesSessions[$session->getModule()->getId()][$key]);
-                //                        }
-                //                    }
-                //                }
-
                 // if not, create it
                 if (!$inscription) {
                     $inscription = new $this->inscriptionClass();
@@ -152,20 +107,6 @@ abstract class AbstractRegistrationAccountController extends Controller
                 $inscriptions[] = $inscription;
             }
         }
-
-        // session inscriptions to desist for the current trainee
-        //        foreach ($modulesSessions as $moduleId => $moduleSessions) {
-        //            foreach ($moduleSessions as $key => $moduleSession) {
-        //                $inscriptionToRemove = $repository->findOneBy(array(
-        //                    'session' => $moduleSession,
-        //                    'trainee' => $trainee,
-        //                ));
-        //                if ($inscriptionToRemove) {
-        //                    $inscriptionToRemove->setInscriptionStatus($this->getDesistInscriptionStatus($trainee));
-        //                }
-        //            }
-        //        }
-
         $em->flush();
 
         // send a recap to the trainee
@@ -295,7 +236,7 @@ abstract class AbstractRegistrationAccountController extends Controller
         }
 
         foreach ($inscriptionIdsByOrganization as $organizationId => $inscriptionIds) {
-            /** @var Organization $org */
+            /** @var AbstractOrganization $org */
             $org = $this->getDoctrine()->getRepository(AbstractOrganization::class)->find($organizationId);
 
             /** @var QueryBuilder $qb */
@@ -424,9 +365,9 @@ abstract class AbstractRegistrationAccountController extends Controller
     protected function getDesistInscriptionStatus(AbstractTrainee $trainee)
     {
         $em = $this->getDoctrine()->getManager();
-        $status = $em->getRepository('SygeforCoreBundle:Term\InscriptionStatus')->findOneBy(array('machineName' => 'desist', 'organization' => null));
+        $status = $em->getRepository(InscriptionStatus::class)->findOneBy(array('machineName' => 'desist', 'organization' => null));
         if (!$status) {
-            $status = $em->getRepository('SygeforCoreBundle:Term\InscriptionStatus')->findOneBy(array('machineName' => 'desist', 'organization' => $trainee->getOrganization()));
+            $status = $em->getRepository(InscriptionStatus::class)->findOneBy(array('machineName' => 'desist', 'organization' => $trainee->getOrganization()));
         }
 
         return $status;

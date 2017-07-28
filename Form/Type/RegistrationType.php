@@ -18,11 +18,13 @@ class RegistrationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
-        $builder->add('password', null,
-          array(
-            'label' => 'Mot de passe',
-            'property_path' => 'plainPassword',
-          ));
+
+        $builder
+            ->add('password', null, array(
+                'label' => 'Mot de passe',
+                'property_path' => 'plainPassword',
+            ))
+        ;
     }
 
     /**

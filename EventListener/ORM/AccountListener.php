@@ -4,9 +4,8 @@ namespace Sygefor\Bundle\ApiBundle\EventListener\ORM;
 
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
-use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
-use Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
 use Symfony\Component\DependencyInjection\Container;
 
 /**
@@ -15,9 +14,9 @@ use Symfony\Component\DependencyInjection\Container;
  *  - encode and save the password if a new plain password has been set
  *  - generate new password and send credentials to the trainee if the property sendCredentialsEmail has been set to true.
  */
-class TraineeListener implements EventSubscriber
+class AccountListener implements EventSubscriber
 {
-    private $container;
+    protected $container;
 
     /**
      * @param Container $container
@@ -39,7 +38,6 @@ class TraineeListener implements EventSubscriber
           Events::preUpdate,
           Events::postPersist,
           Events::postUpdate,
-          Events::loadClassMetadata,
         );
     }
 
@@ -65,7 +63,7 @@ class TraineeListener implements EventSubscriber
      */
     public function postProcess($trainee, $new = false)
     {
-        if ($trainee instanceof AbstractTrainee) {
+        if (get_parent_class($trainee) == AbstractTrainee::class) {
             // send some mails to the trainee
             if ($trainee->isSendCredentialsMail()) {
                 $this->sendCredentialsMail($trainee, $new);
@@ -109,19 +107,6 @@ class TraineeListener implements EventSubscriber
     }
 
     /**
-     * loadClassMetadata
-     * email field is not nullable.
-     */
-    public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
-    {
-        $classMetadata = $eventArgs->getClassMetadata();
-        $class = $classMetadata->getName();
-        if ($class === 'Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee') {
-            $classMetadata->fieldMappings['email']['nullable'] = false;
-        }
-    }
-
-    /**
      * sendMail.
      */
     protected function sendCredentialsMail(AbstractTrainee $trainee, $new)
@@ -140,13 +125,13 @@ class TraineeListener implements EventSubscriber
             $template = 'welcome.shibboleth.txt.twig';
         }
 
-        $body = $this->container->get('templating')->render('SygeforTraineeBundle:Trainee:'.$template, $parameters);
+        $body = $this->container->get('templating')->render('trainee/'.$template, $parameters);
 
         // send the mail
         $message = \Swift_Message::newInstance()
           ->setFrom($this->container->getParameter('mailer_from'), $trainee->getOrganization()->getName())
           ->setReplyTo($trainee->getOrganization()->getEmail())
-          ->setSubject('Bienvenue sur la plateforme formation de la DR20 du CNRS !')
+          ->setSubject('Bienvenue sur la plateforme SYGEFOR !')
           ->setTo($trainee->getEmail())
           ->setBody($body);
         $this->container->get('mailer')->send($message);
@@ -180,7 +165,7 @@ class TraineeListener implements EventSubscriber
         );
 
         // generate body
-        $body = $this->container->get('templating')->render('SygeforTraineeBundle:Trainee:activation.txt.twig', $parameters);
+        $body = $this->container->get('templating')->render('trainee/activation.txt.twig', $parameters);
 
         // send the mail
         $message = \Swift_Message::newInstance()

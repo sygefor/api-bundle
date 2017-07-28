@@ -6,6 +6,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -106,9 +107,9 @@ class ShibbolethController extends Controller
 
         // organization
         if (!empty($data['department'])) {
-            $organizations = $em->getRepository('SygeforCoreBundle:Organization')->findAll();
+            $organizations = $em->getRepository(AbstractOrganization::class)->findAll();
             foreach ($organizations as $organization) {
-//                if (in_array($data['department'], $organization->getDepartments(), true)) {
+                //                if (in_array($data['department'], $organization->getDepartments(), true)) {
 //                    $data['organization'] = $organization->getId();
 //                    break;
 //                }

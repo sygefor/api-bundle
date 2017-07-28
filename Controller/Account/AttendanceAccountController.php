@@ -149,7 +149,7 @@ class AttendanceAccountController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $trainee = $this->getUser();
-        $repository = $em->getRepository('SygeforCoreBundle:AbstractInscription');
+        $repository = $em->getRepository(AbstractInscription::class);
         /** @var QueryBuilder $qb */
         $qb = $repository->createQueryBuilder('i');
         // only for the current user

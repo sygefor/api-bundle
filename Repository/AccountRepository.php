@@ -10,11 +10,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 /**
- * Class TraineeRepository.
+ * Class AccountRepository.
  *
  * @see http://symfony.com/fr/doc/current/cookbook/security/entity_provider.html
  */
-class TraineeRepository extends EntityRepository implements UserProviderInterface
+class AccountRepository extends EntityRepository implements UserProviderInterface
 {
     /**
      * @param string $email

@@ -1,12 +1,12 @@
 <?php
 
-namespace Sygefor\Bundle\ApiBundle\EventListener;
+namespace Sygefor\Bundle\ApiBundle\EventListener\Serializer;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Context;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\PreSerializeEvent;
-use Sygefor\Bundle\CoreBundle\Entity\Training;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 
 /**
  * Training serialization event subscriber.
@@ -34,7 +34,7 @@ class TrainingEventSubscriber implements EventSubscriberInterface
     public function onPreSerialize(PreSerializeEvent $event)
     {
         $training = $event->getObject();
-        if ($training instanceof Training && self::isApiGroup($event->getContext())) {
+        if ($training instanceof AbstractTraining && self::isApiGroup($event->getContext())) {
             $sessions = $training->getSessions();
             foreach ($sessions as $key => $session) {
                 if (!$session->isDisplayOnline()) {

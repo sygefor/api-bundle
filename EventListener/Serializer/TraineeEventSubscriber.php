@@ -1,6 +1,6 @@
 <?php
 
-namespace Sygefor\Bundle\ApiBundle\EventListener;
+namespace Sygefor\Bundle\ApiBundle\EventListener\Serializer;
 
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
@@ -39,7 +39,6 @@ class TraineeEventSubscriber implements EventSubscriberInterface
                     'id' => $inscription->getId(),
                     'session' => $inscription->getSession()->getId(),
                     'inscriptionStatus' => $inscription->getInscriptionStatus()->getId(),
-                    'module' => method_exists($inscription->getSession(), 'getModule') && $inscription->getSession()->getModule() ? $inscription->getSession()->getModule()->getId() : null,
                 );
             }
             $event->getVisitor()->addData('registrations', $inscriptions);

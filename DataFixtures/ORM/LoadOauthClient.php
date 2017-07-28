@@ -18,7 +18,6 @@ class LoadOauthClient extends AbstractTermLoad
             array(
                 'randomId' => $this->container->getParameter('oauthId'),
                 'redirectUris' => array(
-                    'http://localhost:3000',
                     'https://'.$this->container->getParameter('front_host'),
                 ),
                 'allowedGrantTypes' => array(
