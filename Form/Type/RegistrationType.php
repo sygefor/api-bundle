@@ -42,6 +42,6 @@ class RegistrationType extends AbstractType
 
     public function getParent()
     {
-        return AbstractProfileType::class;
+        return ProfileType::class;
     }
 }

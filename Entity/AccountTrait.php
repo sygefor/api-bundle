@@ -9,6 +9,9 @@
 
 namespace Sygefor\Bundle\ApiBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
+
 /**
  * Class AccountTrait.
  */

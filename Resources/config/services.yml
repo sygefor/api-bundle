@@ -46,7 +46,7 @@ services:
             - [setContainer, ["@service_container"]]
 
     # ORM listeners
-    sygefor_api.trainee.orm.listener:
+    sygefor_api.account.orm.listener:
         class: Sygefor\Bundle\ApiBundle\EventListener\ORM\AccountListener
         arguments:
             - "@service_container"

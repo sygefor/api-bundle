@@ -6,7 +6,6 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -76,8 +75,6 @@ class ShibbolethController extends Controller
      */
     protected function prepareRegisterData($attrs)
     {
-        $em = $this->getDoctrine()->getManager();
-
         $data = array(
             'email' => @$attrs['mail'],
             'lastName' => @$attrs['sn'],
@@ -101,59 +98,8 @@ class ShibbolethController extends Controller
                 $data['address'] = $address['address'];
                 $data['city'] = $address['city'];
                 $data['zip'] = $address['zip'];
-                $data['department'] = substr($address['zip'], 0, 2);
             }
         }
-
-        // organization
-        if (!empty($data['department'])) {
-            $organizations = $em->getRepository(AbstractOrganization::class)->findAll();
-            foreach ($organizations as $organization) {
-                //                if (in_array($data['department'], $organization->getDepartments(), true)) {
-//                    $data['organization'] = $organization->getId();
-//                    break;
-//                }
-            }
-        }
-
-        // institution
-        if (!empty($attrs['supannEtablissement']) && !empty($data['organization'])) {
-            $rep = $em->getRepository('SygeforCoreBundle:Term\Institution');
-            $name = preg_replace('/^\{[^\}]*\}/', '', $attrs['supannEtablissement']);
-            $institution = $rep->findOneBy(array('organization' => $data['organization'], 'name' => $name));
-            if (!$institution) {
-                $data['otherInstitution'] = $name;
-                $institution = $rep->findOneBy(array('organization' => $data['organization'], 'machineName' => 'other'));
-                if (!$institution) {
-                    $institution = $rep->findOneBy(array('organization' => null, 'machineName' => 'other'));
-                }
-            }
-            $data['institution'] = $institution->getId();
-        }
-
-        // Fonction, statut
-        if (!empty($attrs['supannRoleGenerique'])) {
-            $data['status'] = $attrs['supannRoleGenerique'];
-        }
-
-        /*organization:
-            department:04
-            organization:3
-        infos-perso:
-            title: 1
-            lastName: hnhg
-            firstName: ghj
-            email: hgj@j.com
-        infos-pro:
-            publicCategory: 20
-            institution: 262
-            professionalSituation: 21
-        infos-contact:
-            addressType:0,
-            address:"5 impasse des Violettes",
-            city:"Thénisy",
-            phoneNumber:"+33688301317",
-            zip:35000*/
 
         return $data;
     }

@@ -2,15 +2,13 @@
 
 namespace Sygefor\Bundle\ApiBundle\Controller;
 
-use Elastica\Filter\Term;
-use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\HttpFoundation\Request;
 use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
-use Sygefor\Bundle\CoreBundle\Utils\Search\SearchService;
 use Sygefor\Bundle\CoreBundle\Entity\Term\VocabularyInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use FOS\RestBundle\Controller\Annotations as Rest;
 
 /**
  * Class TaxonomyController.
@@ -33,19 +31,11 @@ class TaxonomyController extends Controller
             'title' => 'sygefor_core.vocabulary_title',
             'inscriptionStatus' => 'sygefor_core.vocabulary_inscription_status',
             'presenceStatus' => 'sygefor_core.vocabulary_presence_status',
-            'theme' => 'sygefor_training.vocabulary_theme',
-            'publicType' => 'sygefor_trainee.vocabulary_public_type',
         );
 
         $return = array();
         $vocabularies = explode(',', $vocabularies);
         foreach ($vocabularies as $key) {
-            // special case : institution
-            if ($key === 'institution') {
-                $return[$key] = $this->getInstitutions();
-                continue;
-            }
-
             if (!isset($public_map[$key])) {
                 throw new \Exception('This taxonomy does not exist : '.$key);
             }
@@ -81,28 +71,5 @@ class TaxonomyController extends Controller
         }
 
         return $return;
-    }
-
-    /**
-     * workaround : retrieve institutions list from es.
-     */
-    public function getInstitutions()
-    {
-        /** @var SearchService $search */
-        $search = $this->get('sygefor_institution.search');
-        $search->setSize(99999);
-        $search->addSort('name.source');
-
-        // limit available source fields
-        $search->setSource(array('id', 'name', 'organization.id'));
-
-        // only validated institutions
-        $filter = new Term(array('validated' => true));
-        $search->filterQuery($filter);
-
-        $data = $search->search();
-        $items = $data['items'];
-
-        return $items;
     }
 }

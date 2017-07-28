@@ -11,7 +11,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Class ProfileType.
  */
-abstract class AbstractProfileType extends AbstractType
+class ProfileType extends AbstractType
 {
     /**
      * @param $resolver

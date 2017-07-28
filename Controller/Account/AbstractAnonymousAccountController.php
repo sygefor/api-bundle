@@ -5,11 +5,6 @@ namespace Sygefor\Bundle\ApiBundle\Controller\Account;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use Monolog\Logger;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sygefor\Bundle\ApiBundle\Form\Type\RegistrationType;
 use Sygefor\Bundle\ApiBundle\Repository\AccountRepository;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -18,6 +13,10 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 /**
  * This controller regroup all public actions relative to account.
@@ -43,7 +42,7 @@ abstract class AbstractAnonymousAccountController extends Controller
         try {
             /** @var AbstractTrainee $trainee */
             $trainee = new $this->traineeClass();
-            $form = $this->createForm(RegistrationType::class, $trainee);
+            $form = $this->createForm($trainee::getRegistrationFormType(), $trainee);
             // remove extra fields
             //$data = RegistrationType::extractRequestData($request, $form);
             $data = $request->request->all();
@@ -127,7 +126,7 @@ abstract class AbstractAnonymousAccountController extends Controller
         if (!$email) {
             throw new BadRequestHttpException('You must provide an email.');
         }
-        $trainee = $em->getRepository('SygeforCoreBundle:AbstractTrainee')->findByEmail($email);
+        $trainee = $em->getRepository(AbstractTrainee::class)->findByEmail($email);
 
         return array('exists' => $trainee ? true : false);
     }
@@ -147,7 +146,7 @@ abstract class AbstractAnonymousAccountController extends Controller
         }
 
         /** @var AbstractTrainee $trainee */
-        $trainee = $em->getRepository('SygeforCoreBundle:AbstractTrainee')->findOneByEmail($email);
+        $trainee = $em->getRepository(AbstractTrainee::class)->findOneByEmail($email);
         if (!$trainee) {
             throw new NotFoundHttpException('Unknown account : '.$email);
         }
@@ -233,9 +232,6 @@ abstract class AbstractAnonymousAccountController extends Controller
             $password = AccountRepository::generatePassword();
         }
         $trainee->setPlainPassword($password);
-
-        // set isPaying from publicType
-        //$trainee->setIsPaying($trainee->getPublicType()->getIsPaying());
     }
 
     /**
