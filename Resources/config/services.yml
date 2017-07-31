@@ -1,5 +1,6 @@
 services:
     # user provider
+    # override abtract class to real class to make it work
     sygefor_api.account_repository:
         class: Sygefor\Bundle\ApiBundle\Repository\AccountRepository
         factory_service:  doctrine
