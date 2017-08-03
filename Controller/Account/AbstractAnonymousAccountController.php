@@ -231,7 +231,9 @@ abstract class AbstractAnonymousAccountController extends Controller
         } else {
             $password = AccountRepository::generatePassword();
         }
-        $trainee->setPlainPassword($password);
+        $factory = $this->container->get('security.encoder_factory');
+        $encoder = $factory->getEncoder($trainee);
+        $trainee->setPassword($encoder->encodePassword($password, $trainee->getSalt()));
     }
 
     /**
