@@ -27,7 +27,7 @@ class AccountRepository extends EntityRepository implements UserProviderInterfac
     {
         $q = $this
           ->createQueryBuilder('t')
-          ->where('t.email = :email')
+          ->where('LOWER(t.email) = LOWER(:email)')
           ->setParameter('email', $email)
           ->getQuery();
 
