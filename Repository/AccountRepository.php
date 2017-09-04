@@ -83,7 +83,7 @@ class AccountRepository extends EntityRepository implements UserProviderInterfac
      *
      * @return string
      */
-    public static function generatePassword($length = 8)
+    public static function generatePassword($length = 12)
     {
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $count = mb_strlen($chars);

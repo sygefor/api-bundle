@@ -217,6 +217,7 @@ abstract class AbstractAnonymousAccountController extends Controller
             $trainee->setShibbolethPersistentId($persistentId ? $persistentId : $email);
             $trainee->setEmail($email);
             $trainee->setIsActive(true);
+            $trainee->setSendActivationMail(false);
             $trainee->setSendCredentialsMail(true);
         } else {
             $trainee->setSendCredentialsMail(false);
