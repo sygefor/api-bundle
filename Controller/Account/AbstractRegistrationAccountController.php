@@ -2,6 +2,7 @@
 
 namespace Sygefor\Bundle\ApiBundle\Controller\Account;
 
+use AppBundle\Entity\Inscription;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
@@ -10,9 +11,9 @@ use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
 use Sygefor\Bundle\CoreBundle\Entity\Term\EmailTemplate;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -30,10 +31,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 abstract class AbstractRegistrationAccountController extends Controller
 {
     protected $inscriptionClass = AbstractInscription::class;
-
-    protected $sendCheckoutNotificationTemplates = 'account/registration/authorization.pdf.twig';
-
-    protected $authorizationTemplate = 'account/registration/authorization.pdf.twig';
 
     /**
      * Checkout registrations cart.
@@ -192,32 +189,15 @@ abstract class AbstractRegistrationAccountController extends Controller
      */
     public function authorizationAction($ids, Request $request)
     {
-        $registrations = explode(',', $ids);
-        $trainee = $this->getUser();
+        $authorizationTemplate = $this->getDoctrine()->getRepository(PublipostTemplate::class)->findOneBy(array(
+            'organization' => $this->getUser()->getOrganization(),
+            'machineName' => 'authorization',
+        ));
 
-        try {
-            // get forms
-            $formTemplates = $this->getAuthorizationForms($trainee, $registrations, $this->authorizationTemplate);
-            $forms = array();
-            foreach ($formTemplates as $org => $template) {
-                foreach ($template as $html) {
-                    $forms[$org] = $html;
-                }
-            }
-        } catch (\InvalidArgumentException $e) {
-            throw new BadRequestHttpException($e->getMessage());
-        }
+        $mailingOperation = $this->get('sygefor_core.batch.publipost.inscription');
+        $file = $mailingOperation->execute(explode(',', $ids), array('template' => $authorizationTemplate->getId()));
 
-        // join forms & return pdf
-        $html = implode('<div style="page-break-after: always;"></div>', $forms);
-        $filename = 'formulaire'.(count($forms) > 1 ? 's' : '').'_autorisation.pdf';
-
-        return new Response(
-          $this->get('knp_snappy.pdf')->getOutputFromHtml($html, array('print-media-type' => null)), 200,
-          array(
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"', )
-        );
+        return $mailingOperation->sendFile($file['fileUrl'], $authorizationTemplate->getName().'.odt', array('pdf' => false));
     }
 
     /**
@@ -253,108 +233,28 @@ abstract class AbstractRegistrationAccountController extends Controller
 
             if ($inscriptionStatus) {
                 /** @var EmailTemplate $checkoutEmailTemplate */
-                $checkoutEmailTemplate = $this->getDoctrine()->getRepository(EmailTemplate::class)
-                    ->findOneBy(array(
+                $checkoutEmailTemplate = $this->getDoctrine()->getRepository(EmailTemplate::class)->findOneBy(
+                    array(
                         'organization' => $this->getDoctrine()->getRepository(AbstractOrganization::class)->find($organizationId),
                         'inscriptionStatus' => $inscriptionStatus,
-                    ));
-
-                // generate authorization forms
-                $attachments = array();
-                // send the mail if attachment fails
-                try {
-                    // knp_snappy doest not work locally
-                    if ($this->get('kernel')->getEnvironment() !== 'dev') {
-                        $organizationInscriptions = $this->getDoctrine()
-                            ->getRepository($this->inscriptionClass)
-                            ->findBy(array('id' => $inscriptionIds));
-                        $forms = $this->getAuthorizationForms($trainee, $organizationInscriptions, $this->sendCheckoutNotificationTemplates);
-                        foreach ($forms as $code => $template) {
-                            foreach ($template as $key => $html) {
-                                $data = $this->get('knp_snappy.pdf')
-                                    ->getOutputFromHtml($html, array('print-media-type' => null));
-                                $attachments[] = \Swift_Attachment::newInstance($data, 'formulaire_'.$key.$code.'.pdf', 'application/pdf');
-                            }
-                        }
-                    }
-                } catch (\Exception $e) {
-                    $this->get('logger')
-                        ->emergency('Attachment generation error');
-                    $this->get('logger')->emergency($e->getMessage());
-                }
+                    )
+                );
 
                 if ($checkoutEmailTemplate) {
                     $this->get('sygefor_core.batch.email')->execute(
                         $inscriptionIds,
                         array(
                             'targetClass' => $this->inscriptionClass,
-                            'preview' => false,
                             'subject' => $checkoutEmailTemplate->getSubject(),
                             'cc' => $checkoutEmailTemplate->getCc(),
                             'message' => $checkoutEmailTemplate->getBody(),
-                            'attachment' => empty($attachments) ? null : $attachments,
+                            'templateAttachments' => $checkoutEmailTemplate->getAttachmentTemplates(),
                             'typeUser' => get_class($this->getUser()),
                         )
                     );
                 }
             }
         }
-    }
-
-    /**
-     * Generate authorization forms.
-     *
-     * @param $trainee
-     * @param $registrations
-     * @param $templates
-     *
-     * @throws \InvalidArgumentException
-     *
-     * @return array
-     */
-    protected function getAuthorizationForms($trainee, $registrations, $templates)
-    {
-        $repository = $this->get('doctrine')->getManager()->getRepository($this->inscriptionClass);
-        $sessionsByOrg = array();
-
-        // verify & group sessions by organization
-        /** @var AbstractInscription $registration */
-        foreach ($registrations as $registration) {
-            if (!($registration instanceof $this->inscriptionClass)) {
-                $id = (int) $registration;
-                $registration = $repository->find($id);
-                if (!$registration) {
-                    throw new \InvalidArgumentException('The registration identifier is not valid : '.$id);
-                }
-            }
-            if ($registration->getTrainee() !== $trainee) {
-                throw new \InvalidArgumentException('The registration does not belong to the trainee : '.$registration->getId());
-            }
-            if ($registration->getInscriptionStatus()->getMachineName() !== 'desist') {
-                $sessionsByOrg[$registration->getSession()->getTraining()->getOrganization()->getId()][] = $registration->getSession();
-            }
-        }
-
-        if (is_string($templates)) {
-            $templates = array($templates);
-        }
-
-        // build pages
-        $forms = array();
-        foreach ($sessionsByOrg as $org => $sessions) {
-            // prepare pdf variables
-            $organization = $sessions[0]->getTraining()->getOrganization();
-            $variables = array(
-              'organization' => $organization,
-              'trainee' => $trainee,
-              'sessions' => $sessions,
-            );
-            foreach ($templates as $key => $template) {
-                $forms[$organization->getCode()][$key] = $this->renderView($template, $variables);
-            }
-        }
-
-        return $forms;
     }
 
     /**
