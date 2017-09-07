@@ -194,10 +194,14 @@ abstract class AbstractRegistrationAccountController extends Controller
             'machineName' => 'authorization',
         ));
 
-        $mailingOperation = $this->get('sygefor_core.batch.publipost.inscription');
-        $file = $mailingOperation->execute(explode(',', $ids), array('template' => $authorizationTemplate->getId()));
+        if ($authorizationTemplate) {
+            $mailingOperation = $this->get('sygefor_core.batch.publipost.inscription');
+            $file = $mailingOperation->execute(explode(',', $ids), array('template' => $authorizationTemplate->getId()));
 
-        return $mailingOperation->sendFile($file['fileUrl'], $authorizationTemplate->getName().'.odt', array('pdf' => false));
+            return $mailingOperation->sendFile($file['fileUrl'], $authorizationTemplate->getName().'.odt', array('pdf' => true));
+        }
+
+        throw new NotFoundHttpException('No authorization template has been found');
     }
 
     /**
