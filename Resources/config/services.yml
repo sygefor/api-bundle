@@ -30,6 +30,13 @@ services:
             - "@fos_oauth_server.storage"
             - "@fos_rest.serializer"
 
+    # trainee own inscription access voter
+    sygefor_api.access_inscription_voter:
+        class: Sygefor\Bundle\ApiBundle\Security\Authorization\Voter\OwnInscriptionVoter
+        public: false
+        tags:
+            - { name:security.voter }
+
     # kernel
     sygefor_api.kernel.listener.oauth_public_client:
         class: Sygefor\Bundle\ApiBundle\EventListener\OauthKernelEventSubscriber
