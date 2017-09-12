@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Context;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\PreSerializeEvent;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 
 /**
@@ -37,7 +38,7 @@ class TrainingEventSubscriber implements EventSubscriberInterface
         if ($training instanceof AbstractTraining && self::isApiGroup($event->getContext())) {
             $sessions = $training->getSessions();
             foreach ($sessions as $key => $session) {
-                if (!$session->isDisplayOnline()) {
+                if ($session->isDisplayOnline() === false && $session->getRegistration() !== AbstractSession::REGISTRATION_PRIVATE) {
                     unset($sessions[$key]);
                 }
             }
