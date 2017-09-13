@@ -19,6 +19,13 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
+    # trainee own inscription access voter
+    sygefor_api.access_inscription_voter:
+        class: Sygefor\Bundle\ApiBundle\Security\Authorization\Voter\OwnInscriptionVoter
+        public: false
+        tags:
+            - { name:security.voter }
+
     # serializer
     sygefor_api.serializer.trainee.event_subscriber:
         class: Sygefor\Bundle\ApiBundle\Serializer\EventSubscriber\TraineeEventSubscriber
