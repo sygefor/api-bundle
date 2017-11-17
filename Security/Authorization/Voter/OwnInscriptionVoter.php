@@ -49,13 +49,19 @@ class OwnInscriptionVoter implements VoterInterface
      */
     public function vote(TokenInterface $token, $object, array $attributes)
     {
-        // the current token must have a Trainee
-        if (get_parent_class($token->getUser()) !== AbstractTrainee::class) {
-            return VoterInterface::ACCESS_ABSTAIN;
-        }
+        foreach ($attributes as $attribute) {
+            if ($this->supportsAttribute($attribute)) {
+                // the current token must have a Trainee
+                if (get_parent_class($token->getUser()) !== AbstractTrainee::class) {
+                    return VoterInterface::ACCESS_ABSTAIN;
+                }
 
-        if ($token->getUser()->getId() || $object->getTrainee()->getId()) {
-            return VoterInterface::ACCESS_GRANTED;
+                if ($token->getUser()->getId() || $object->getTrainee()->getId()) {
+                    return VoterInterface::ACCESS_GRANTED;
+                }
+
+                return VoterInterface::ACCESS_ABSTAIN;
+            }
         }
 
         return VoterInterface::ACCESS_ABSTAIN;
