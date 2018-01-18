@@ -4,6 +4,7 @@ namespace Sygefor\Bundle\ApiBundle\Controller\Account;
 
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
+use Html2Text\Html2Text;
 use Monolog\Logger;
 use Sygefor\Bundle\ApiBundle\Repository\AccountRepository;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
@@ -185,12 +186,13 @@ abstract class AbstractAnonymousAccountController extends Controller
             $resetUrl = $this->container->getParameter('front_url')."/reset-password/$email/$token";
 
             // send the mail
-            $message = \Swift_Message::newInstance()
+            $message = \Swift_Message::newInstance(null, null, 'text/html', null)
                 ->setFrom($this->container->getParameter('mailer_from'), $this->container->getParameter('mailer_from_name'))
                 ->setReplyTo($trainee->getOrganization()->getEmail())
                 ->setSubject('SYGEFOR : Réinitialisation de votre mot de passe')
                 ->setTo($trainee->getEmail())
-                ->setBody($this->renderView('account/reset-password.txt.twig', array('trainee' => $trainee, 'resetUrl' => $resetUrl)));
+                ->setBody($this->renderView('trainee/reset-password.html.twig', array('trainee' => $trainee, 'resetUrl' => $resetUrl)));
+            $message->addPart(Html2Text::convert($message->getBody()), 'text/plain');
             $sent = $this->get('mailer')->send($message);
 
             return array('sent' => (bool) $sent);

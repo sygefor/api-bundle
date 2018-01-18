@@ -5,6 +5,7 @@ namespace Sygefor\Bundle\ApiBundle\EventListener\ORM;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
+use Html2Text\Html2Text;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
 use Symfony\Component\DependencyInjection\Container;
 
@@ -119,21 +120,22 @@ class AccountListener implements EventSubscriber
           'url' => $this->container->getParameter('front_url'),
         );
 
-        $template = 'welcome.txt.twig';
+        $template = 'welcome.html.twig';
         if ($trainee->getShibbolethPersistentId()) {
             // if shibboleth, send special message
-            $template = 'welcome.shibboleth.txt.twig';
+            $template = 'welcome.shibboleth.html.twig';
         }
 
         $body = $this->container->get('templating')->render('trainee/'.$template, $parameters);
 
         // send the mail
-        $message = \Swift_Message::newInstance()
+        $message = \Swift_Message::newInstance(null, null, 'text/html', null)
           ->setFrom($this->container->getParameter('mailer_from'), $trainee->getOrganization()->getName())
           ->setReplyTo($trainee->getOrganization()->getEmail())
           ->setSubject('Bienvenue sur la plateforme SYGEFOR !')
           ->setTo($trainee->getEmail())
           ->setBody($body);
+        $message->addPart(Html2Text::convert($message->getBody()), 'text/plain');
         $this->container->get('mailer')->send($message);
         $trainee->setSendCredentialsMail(false);
     }
@@ -165,15 +167,16 @@ class AccountListener implements EventSubscriber
         );
 
         // generate body
-        $body = $this->container->get('templating')->render('trainee/activation.txt.twig', $parameters);
+        $body = $this->container->get('templating')->render('trainee/activation.html.twig', $parameters);
 
         // send the mail
-        $message = \Swift_Message::newInstance()
+        $message = \Swift_Message::newInstance(null, null, 'text/html', null)
           ->setFrom($this->container->getParameter('mailer_from'), $trainee->getOrganization()->getName())
           ->setReplyTo($trainee->getOrganization()->getEmail())
           ->setSubject('SYGEFOR : Activation de votre compte')
           ->setTo($trainee->getEmail())
           ->setBody($body);
+        $message->addPart(Html2Text::convert($message->getBody()), 'text/plain');
 
         $this->container->get('mailer')->send($message);
         $trainee->setSendActivationMail(false);
