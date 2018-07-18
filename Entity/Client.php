@@ -7,6 +7,7 @@ use FOS\OAuthServerBundle\Entity\Client as BaseClient;
 
 /**
  * @ORM\Entity
+ * @ORM\Table(name="client")
  */
 class Client extends BaseClient
 {
