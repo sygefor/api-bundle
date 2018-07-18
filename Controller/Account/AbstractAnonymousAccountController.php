@@ -245,7 +245,7 @@ abstract class AbstractAnonymousAccountController extends Controller
      *
      * @return string
      */
-    private function getTimestampedHash(AbstractTrainee $trainee, $timestamp)
+    protected function getTimestampedHash(AbstractTrainee $trainee, $timestamp)
     {
         return hash('sha256', $timestamp.'.'.$trainee->getPassword());
     }
