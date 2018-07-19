@@ -7,6 +7,7 @@ use FOS\OAuthServerBundle\Entity\AuthCode as BaseAuthCode;
 
 /**
  * @ORM\Entity
+ * @ORM\Table(name="auth_code")
  */
 class AuthCode extends BaseAuthCode
 {
@@ -24,7 +25,7 @@ class AuthCode extends BaseAuthCode
     protected $client;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee")
+     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee")
      * @ORM\JoinColumn(onDelete="cascade")
      */
     protected $user;

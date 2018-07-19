@@ -1,0 +1,13 @@
+image: sygefor3/core-bundle
+
+cache:
+  paths:
+  - vendor/
+
+before_script:
+  - curl -sS https://getcomposer.org/installer | php
+  - php composer.phar install
+
+code_sniffer:
+  script:
+  - vendor/bin/php-cs-fixer fix -v --using-cache=no --dry-run

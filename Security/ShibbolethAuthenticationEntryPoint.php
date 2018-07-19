@@ -8,7 +8,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
@@ -28,8 +27,9 @@ class ShibbolethAuthenticationEntryPoint extends BaseShibbolethAuthenticationEnt
      */
     public function __construct(Shibboleth $shibboleth, ContainerInterface $container)
     {
-        $this->container = $container;
         parent::__construct($shibboleth);
+
+        $this->container = $container;
     }
 
     /**
@@ -42,15 +42,14 @@ class ShibbolethAuthenticationEntryPoint extends BaseShibbolethAuthenticationEnt
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        if($authException && $authException instanceof BadCredentialsException) {
+        if ($authException && $authException instanceof BadCredentialsException) {
             //throw new PreconditionFailedHttpException($authException->getMessage());
             // redirect user to registration form
             $front_url = $this->container->getParameter('front_url');
-            $qs        = $request->getQueryString();
-            $url       = $front_url . '/login?shibboleth=1&error=1' . ($qs ? '&' . $qs : '');
+            $qs = $request->getQueryString();
+            $url = $front_url.'/login?shibboleth=1&error=1'.($qs ? '&'.$qs : '');
 
             return new RedirectResponse($url);
-
         }
 
         return parent::start($request, $authException);

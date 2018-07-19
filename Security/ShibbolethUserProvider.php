@@ -4,8 +4,7 @@ namespace Sygefor\Bundle\ApiBundle\Security;
 
 use KULeuven\ShibbolethBundle\Security\ShibbolethUserProviderInterface;
 use KULeuven\ShibbolethBundle\Security\ShibbolethUserToken;
-use KULeuven\ShibbolethBundle\Service\Shibboleth;
-use Sygefor\Bundle\TraineeBundle\Entity\TraineeRepository;
+use Sygefor\Bundle\ApiBundle\Repository\AccountRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -18,16 +17,16 @@ class ShibbolethUserProvider implements ShibbolethUserProviderInterface
     private $container;
 
     /**
-     * @var TraineeRepository
+     * @var AccountRepository
      */
     private $repository;
 
     /**
      * {@inheritdoc}
      */
-    function __construct(ContainerInterface $container, TraineeRepository $repository)
+    public function __construct(ContainerInterface $container, AccountRepository $repository)
     {
-        $this->container  = $container;
+        $this->container = $container;
         $this->repository = $repository;
     }
 
@@ -75,7 +74,7 @@ class ShibbolethUserProvider implements ShibbolethUserProviderInterface
 
         // else, build a custom one with eppn
         if (!$shibbolethId && $identityProvider && $eppn) {
-            $shibbolethId = $identityProvider . '!' . $eppn;
+            $shibbolethId = $identityProvider.'!'.$eppn;
         }
 
         // else, set it to 1
@@ -90,18 +89,12 @@ class ShibbolethUserProvider implements ShibbolethUserProviderInterface
         }
 
         if ($user) {
-            /*if($user->getShibbolethPersistentId() && $persistentId != $user->getShibbolethPersistentId()) {
-                throw new UsernameNotFoundException("The email belongs to another shibboleth account.");
-            }*/
-            // set the new persistent id
             $user->setShibbolethPersistentId($shibbolethId);
-            // set the mail
-            // $user->setEmail($email);
             $em->flush();
 
             return $user;
         }
 
-        return;
+        return null;
     }
 }

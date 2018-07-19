@@ -7,8 +7,8 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sygefor\Bundle\InscriptionBundle\Entity\AbstractInscription;
-use Sygefor\Bundle\InscriptionBundle\Entity\Term\PresenceStatus;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
+use Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -33,7 +33,7 @@ class AttendanceAccountController extends Controller
      */
     public function attendancesAction(Request $request)
     {
-        $qb          = $this->createQueryBuilder();
+        $qb = $this->createQueryBuilder();
         $attendances = $qb->getQuery()->getResult();
 
         return $attendances;
@@ -62,9 +62,9 @@ class AttendanceAccountController extends Controller
      */
     public function downloadAction(Request $request, $session, $material)
     {
-        $attendance   = $this->getAttendance($session);
+        $attendance = $this->getAttendance($session);
         $allMaterials = array();
-        $material     = intval($material);
+        $material = intval($material);
 
         // get all materials
         foreach ($attendance->getSession()->getMaterials() as $sessionMaterial) {
@@ -79,8 +79,7 @@ class AttendanceAccountController extends Controller
                 $material = $_material;
                 if ($material->getType() === 'file') {
                     return $material->send();
-                }
-                else if ($material->getType() === 'link') {
+                } elseif ($material->getType() === 'link') {
                     return new RedirectResponse($_material->getUrl());
                 }
             }
@@ -106,19 +105,19 @@ class AttendanceAccountController extends Controller
 
         //checking signature file existence
         $fs = new Filesystem();
-        if($fs->exists($this->get('kernel')->getRootDir() . '/../web/img/organization/' . $attendance->getSession()->getTraining()->getOrganization()->getCode() . '/signature.png' )) {
-            $signature = '/img/organization/' . $attendance->getSession()->getTraining()->getOrganization()->getCode() . '/signature.png';
+        if ($fs->exists($this->get('kernel')->getRootDir().'/../web/img/organization/'.$attendance->getSession()->getTraining()->getOrganization()->getCode().'/signature.png')) {
+            $signature = '/img/organization/'.$attendance->getSession()->getTraining()->getOrganization()->getCode().'/signature.png';
         }
 
-        $pdf = $this->renderView('SygeforCNRSBundle:Inscription:attestation.pdf.twig', array(
+        $pdf = $this->renderView('inscription/attestation.pdf.twig', array(
             'inscription' => $attendance,
-            'signature'   => $signature,
+            'signature' => $signature,
         ));
 
         return new Response(
           $this->get('knp_snappy.pdf')->getOutputFromHtml($pdf, array('print-media-type' => null)), 200,
           array(
-            'Content-Type'        => 'application/pdf',
+            'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="attestation.pdf"', )
         );
     }
@@ -134,7 +133,7 @@ class AttendanceAccountController extends Controller
         $qb->andWhere('i.session = :session')
           ->setParameter('session', $session);
         $attendance = $qb->getQuery()->getOneOrNullResult();
-        if( ! $attendance) {
+        if (!$attendance) {
             throw new NotFoundHttpException('Unknown attendance.');
         }
 
@@ -148,9 +147,9 @@ class AttendanceAccountController extends Controller
      */
     private function createQueryBuilder()
     {
-        $em         = $this->getDoctrine()->getManager();
-        $trainee    = $this->getUser();
-        $repository = $em->getRepository('SygeforInscriptionBundle:AbstractInscription');
+        $em = $this->getDoctrine()->getManager();
+        $trainee = $this->getUser();
+        $repository = $em->getRepository(AbstractInscription::class);
         /** @var QueryBuilder $qb */
         $qb = $repository->createQueryBuilder('i');
         // only for the current user

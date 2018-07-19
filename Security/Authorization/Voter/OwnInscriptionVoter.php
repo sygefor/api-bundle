@@ -8,8 +8,8 @@
 
 namespace Sygefor\Bundle\ApiBundle\Security\Authorization\Voter;
 
-use Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee;
-use Sygefor\Bundle\InscriptionBundle\Entity\AbstractInscription;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
@@ -49,17 +49,21 @@ class OwnInscriptionVoter implements VoterInterface
      */
     public function vote(TokenInterface $token, $object, array $attributes)
     {
-        if ($object === null) {
-            return VoterInterface::ACCESS_ABSTAIN;
-        }
+        foreach ($attributes as $attribute) {
+            if ($this->supportsAttribute($attribute)) {
+                // the current token must have a Trainee
+                if (get_parent_class($token->getUser()) !== AbstractTrainee::class) {
+                    return VoterInterface::ACCESS_ABSTAIN;
+                }
 
-        // the current token must have a Trainee
-        if (!is_string($token->getUser()) && get_parent_class($token->getUser()) === AbstractTrainee::class) {
-            if ($token->getUser()->getId() === $object->getTrainee()->getId()) {
-                return VoterInterface::ACCESS_GRANTED;
+                if ($token->getUser()->getId() || $object->getTrainee()->getId()) {
+                    return VoterInterface::ACCESS_GRANTED;
+                }
+
+                return VoterInterface::ACCESS_ABSTAIN;
             }
         }
 
-        return VoterInterface::ACCESS_DENIED;
+        return VoterInterface::ACCESS_ABSTAIN;
     }
 }

@@ -1,11 +1,11 @@
 <?php
 
-namespace Sygefor\Bundle\ApiBundle\Serializer\EventSubscriber;
+namespace Sygefor\Bundle\ApiBundle\EventListener\Serializer;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\PreSerializeEvent;
-use Sygefor\Bundle\TrainingBundle\Entity\Session\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 
 /**
  * Session serialization event subscriber.
@@ -15,7 +15,7 @@ class SessionEventSubscriber implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    static public function getSubscribedEvents()
+    public static function getSubscribedEvents()
     {
         return array(
             array('event' => 'serializer.pre_serialize', 'method' => 'onPreSerialize'),
@@ -32,12 +32,12 @@ class SessionEventSubscriber implements EventSubscriberInterface
         $allMaterials = new ArrayCollection();
         /** @var AbstractSession $session */
         $session = $event->getObject();
-        if($session instanceof AbstractSession && TrainingEventSubscriber::isApiGroup($event->getContext())) {
+        if ($session instanceof AbstractSession && TrainingEventSubscriber::isApiGroup($event->getContext())) {
             $training = $session->getTraining();
-            foreach($session->getMaterials() as $material) {
+            foreach ($session->getMaterials() as $material) {
                 $allMaterials->add($material);
             }
-            foreach($training->getMaterials() as $material) {
+            foreach ($training->getMaterials() as $material) {
                 $allMaterials->add($material);
             }
             $session->setAllMaterials($allMaterials);

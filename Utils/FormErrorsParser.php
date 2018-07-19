@@ -1,6 +1,6 @@
 <?php
 
-namespace Sygefor\Bundle\ApiBundle\Service;
+namespace Sygefor\Bundle\ApiBundle\Utils;
 
 use Symfony\Component\DependencyInjection\ContainerAware;
 use Symfony\Component\Form\Form;
@@ -22,7 +22,7 @@ class FormErrorsParser extends ContainerAware
         $errors = array();
         foreach ($form->getErrors() as $key => $error) {
             //If the message requires pluralization
-            if($error->getMessagePluralization() !== null) {
+            if ($error->getMessagePluralization() !== null) {
                 $errors[$key] = $this->container->get('translator')->transChoice(
                   $error->getMessage(),
                   $error->getMessagePluralization(),
@@ -41,12 +41,12 @@ class FormErrorsParser extends ContainerAware
         }
         if ($form->count()) {
             foreach ($form as $child) {
-                if ( ! $child->isValid()) {
-                    if( ! isset($errors['fields'])) {
+                if (!$child->isValid()) {
+                    if (!isset($errors['fields'])) {
                         $errors['fields'] = array();
                     }
                     $_errors = $this->parseErrors($child);
-                    if(count($_errors)) {
+                    if (count($_errors)) {
                         $errors['fields'][$child->getName()] = $_errors;
                     }
                 }

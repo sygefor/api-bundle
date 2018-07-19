@@ -7,6 +7,7 @@ use FOS\OAuthServerBundle\Entity\AccessToken as BaseAccessToken;
 
 /**
  * @ORM\Entity
+ * @ORM\Table(name="access_token")
  */
 class AccessToken extends BaseAccessToken
 {
@@ -24,7 +25,7 @@ class AccessToken extends BaseAccessToken
     protected $client;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee")
+     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee")
      * @ORM\JoinColumn(onDelete="cascade")
      */
     protected $user;

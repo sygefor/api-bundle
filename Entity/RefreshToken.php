@@ -7,6 +7,7 @@ use FOS\OAuthServerBundle\Entity\RefreshToken as BaseRefreshToken;
 
 /**
  * @ORM\Entity
+ * @ORM\Table(name="refresh_token")
  */
 class RefreshToken extends BaseRefreshToken
 {
@@ -24,7 +25,7 @@ class RefreshToken extends BaseRefreshToken
     protected $client;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee")
+     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee")
      * @ORM\JoinColumn(onDelete="cascade")
      */
     protected $user;

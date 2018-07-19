@@ -1,11 +1,11 @@
 <?php
 
-namespace Sygefor\Bundle\ApiBundle\Serializer\EventSubscriber;
+namespace Sygefor\Bundle\ApiBundle\EventListener\Serializer;
 
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
-use Sygefor\Bundle\TraineeBundle\Entity\Inscription;
-use Sygefor\Bundle\TraineeBundle\Entity\Trainee;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
 
 /**
  * Trainee serialization event subscriber.
@@ -15,7 +15,7 @@ class TraineeEventSubscriber implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    static public function getSubscribedEvents()
+    public static function getSubscribedEvents()
     {
         return array(
             array('event' => 'serializer.post_serialize', 'method' => 'onPostSerialize'),
@@ -29,21 +29,19 @@ class TraineeEventSubscriber implements EventSubscriberInterface
      */
     public function onPostSerialize(ObjectEvent $event)
     {
-        $groups  = $event->getContext()->attributes->get('groups');
+        $groups = $event->getContext()->attributes->get('groups');
         $trainee = $event->getObject();
-        if($trainee instanceof Trainee && in_array('api.token', (array) $groups->getOrElse(array()), true)) {
+        if ($trainee instanceof AbstractTrainee && in_array('api.token', (array) $groups->getOrElse(array()), true)) {
             $inscriptions = array();
-            /** @var Inscription $inscription */
-            foreach($trainee->getInscriptions() as $inscription) {
+            /** @var AbstractInscription $inscription */
+            foreach ($trainee->getInscriptions() as $inscription) {
                 $inscriptions[] = array(
-                    'id'                => $inscription->getId(),
-                    'session'           => $inscription->getSession()->getId(),
+                    'id' => $inscription->getId(),
+                    'session' => $inscription->getSession()->getId(),
                     'inscriptionStatus' => $inscription->getInscriptionStatus()->getId(),
-                    'module'            => method_exists($inscription->getSession(), 'getModule') && $inscription->getSession()->getModule() ? $inscription->getSession()->getModule()->getId() : null,
                 );
             }
             $event->getVisitor()->addData('registrations', $inscriptions);
         }
-
     }
 }

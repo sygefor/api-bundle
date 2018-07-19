@@ -1,13 +1,13 @@
 <?php
 
-namespace Sygefor\Bundle\ApiBundle\Serializer\EventSubscriber;
+namespace Sygefor\Bundle\ApiBundle\EventListener\Serializer;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Context;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\PreSerializeEvent;
-use Sygefor\Bundle\TrainingBundle\Entity\Session\AbstractSession;
-use Sygefor\Bundle\TrainingBundle\Entity\Training;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 
 /**
  * Training serialization event subscriber.
@@ -17,11 +17,11 @@ class TrainingEventSubscriber implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    static public function getSubscribedEvents()
+    public static function getSubscribedEvents()
     {
         return array(
             array(
-                'event'  => 'serializer.pre_serialize',
+                'event' => 'serializer.pre_serialize',
                 'method' => 'onPreSerialize',
             ),
         );
@@ -35,9 +35,9 @@ class TrainingEventSubscriber implements EventSubscriberInterface
     public function onPreSerialize(PreSerializeEvent $event)
     {
         $training = $event->getObject();
-        if ($training instanceof Training && self::isApiGroup($event->getContext())) {
+        if ($training instanceof AbstractTraining && self::isApiGroup($event->getContext())) {
             $sessions = $training->getSessions();
-            foreach($sessions as $key => $session) {
+            foreach ($sessions as $key => $session) {
                 if ($session->isDisplayOnline() === false && $session->getRegistration() !== AbstractSession::REGISTRATION_PRIVATE) {
                     unset($sessions[$key]);
                 }
@@ -51,7 +51,7 @@ class TrainingEventSubscriber implements EventSubscriberInterface
      *
      * @return bool
      */
-    static public function isApiGroup(Context $context)
+    public static function isApiGroup(Context $context)
     {
         $groups = $context->attributes->get('groups');
         foreach ($groups->getOrElse(array()) as $group) {

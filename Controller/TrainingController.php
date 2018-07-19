@@ -8,9 +8,9 @@ use Elastica\Search;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sygefor\Bundle\CoreBundle\Search\SearchService;
-use Sygefor\Bundle\TrainingBundle\Entity\Session\AbstractSession;
-use Sygefor\Bundle\TrainingBundle\Entity\Training\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Utils\Search\SearchService;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class TrainingController extends AbstractController
 {
-    static protected $authorizedFields = array(
+    protected static $authorizedFields = array(
         'session' => array(
           'id',
           'name',
@@ -29,18 +29,10 @@ class TrainingController extends AbstractController
           'semester',
           'semesterLabel',
           'limitRegistrationDate',
-          'hourNumber',
-          'dayNumber',
-          'numberOfParticipants',
-          'price',
-          'maximumNumberOfRegistrations',
-          'place',
           'registration',
           'displayOnline',
           'availablePlaces',
           'participations',
-          'schedule',
-          'promote',
           'status',
         ),
         'training' => array(
@@ -50,14 +42,7 @@ class TrainingController extends AbstractController
           'typeLabel.source',
           'organization',
           'number',
-          'serial',
-          'theme',
-          'tags',
           'name',
-          'description',
-          'program',
-          'prerequisite',
-          'publicType',
           'firstSessionPeriodSemester',
           'firstSessionPeriodYear',
         ),
@@ -108,13 +93,12 @@ class TrainingController extends AbstractController
 
         // include private sessions
         if ($includePrivate) {
-            $orFilter      = new BoolOr();
+            $orFilter = new BoolOr();
             $privateFilter = new Term(array('registration' => AbstractSession::REGISTRATION_PRIVATE));
             $orFilter->addFilter($onlineFilter);
             $orFilter->addFilter($privateFilter);
             $search->filterQuery($orFilter);
-        }
-        else {
+        } else {
             $search->filterQuery($onlineFilter);
         }
 
@@ -125,7 +109,7 @@ class TrainingController extends AbstractController
      * Training REST API.
      *
      * @Route("/{id}", requirements={"id" = "\d+"}, name="api.training.detail", defaults={"_format" = "json"})
-     * @ParamConverter("training", class="SygeforTrainingBundle:Training\AbstractTraining", options={"id" = "id"})
+     * @ParamConverter("training", class="SygeforCoreBundle:AbstractTraining", options={"id" = "id"})
      * @Rest\View(serializerGroups={"api", "api.training"}, serializerEnableMaxDepthChecks=true)
      */
     public function trainingAction(AbstractTraining $training)

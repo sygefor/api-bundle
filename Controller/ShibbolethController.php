@@ -26,15 +26,14 @@ class ShibbolethController extends Controller
         $user = $this->getUser();
         if ($user) {
             // redirect user to login form
-            $url = $front_url . '/login?shibboleth=1';
-        }
-        else {
+            $url = $front_url.'/login?shibboleth=1';
+        } else {
             // redirect user to registration form
-            $url = $front_url . '/register/organization?shibboleth=1';
+            $url = $front_url.'/register/organization?shibboleth=1';
         }
 
         if ($request->getQueryString()) {
-            $url .= '&' . $request->getQueryString();
+            $url .= '&'.$request->getQueryString();
         }
 
         return new RedirectResponse($url);
@@ -50,9 +49,9 @@ class ShibbolethController extends Controller
         if (!$user) {
             throw new AccessDeniedHttpException('Shibboleth session is missing user.');
         }
-        $clientId     = $request->get('client_id');
+        $clientId = $request->get('client_id');
         $clientSecret = $request->get('client_secret');
-        $generator    = $this->get('sygefor_api.oauth.token_generator');
+        $generator = $this->get('sygefor_api.oauth.token_generator');
 
         return $generator->generateTokenResponse($user, $clientId, $clientSecret);
     }
@@ -63,9 +62,9 @@ class ShibbolethController extends Controller
      */
     public function attributesAction(Request $request)
     {
-        $token                       = $this->get('security.context')->getToken();
-        $attributes                  = $token->getAttributes();
-        $attributes                  = array_map('utf8_encode', $attributes);
+        $token = $this->get('security.context')->getToken();
+        $attributes = $token->getAttributes();
+        $attributes = array_map('utf8_encode', $attributes);
         $attributes['register_data'] = $this->prepareRegisterData($attributes);
 
         return $attributes;
@@ -76,8 +75,6 @@ class ShibbolethController extends Controller
      */
     protected function prepareRegisterData($attrs)
     {
-        $em = $this->getDoctrine()->getManager();
-
         $data = array(
             'email' => @$attrs['mail'],
             'lastName' => @$attrs['sn'],
@@ -87,8 +84,7 @@ class ShibbolethController extends Controller
         // title
         if (!empty($attrs['title']) && in_array($attrs['title'], array('Mme', 'Melle'), true)) {
             $data['title'] = 2;
-        }
-        else {
+        } else {
             $data['title'] = 1;
         }
 
@@ -102,59 +98,8 @@ class ShibbolethController extends Controller
                 $data['address'] = $address['address'];
                 $data['city'] = $address['city'];
                 $data['zip'] = $address['zip'];
-                $data['department'] = substr($address['zip'], 0, 2);
             }
         }
-
-        // organization
-        if (!empty($data['department'])) {
-            $organizations = $em->getRepository('SygeforCoreBundle:Organization')->findAll();
-            foreach ($organizations as $organization) {
-                if (in_array($data['department'], $organization->getDepartments(), true)) {
-                    $data['organization'] = $organization->getId();
-                    break;
-                }
-            }
-        }
-
-        // institution
-        if (!empty($attrs['supannEtablissement']) && !empty($data['organization'])) {
-            $rep = $em->getRepository('SygeforTrainingBundle:Term\Institution');
-            $name = preg_replace('/^\{[^\}]*\}/', '', $attrs['supannEtablissement']);
-            $institution = $rep->findOneBy(array('organization' => $data['organization'], 'name' => $name));
-            if (!$institution) {
-                $data['otherInstitution'] = $name;
-                $institution = $rep->findOneBy(array('organization' => $data['organization'], 'machineName' => 'other'));
-                if (!$institution) {
-                    $institution = $rep->findOneBy(array('organization' => null, 'machineName' => 'other'));
-                }
-            }
-            $data['institution'] = $institution->getId();
-        }
-
-        // Fonction, statut
-        if (!empty($attrs['supannRoleGenerique'])) {
-            $data['status'] = $attrs['supannRoleGenerique'];
-        }
-
-        /*organization:
-            department:04
-            organization:3
-        infos-perso:
-            title: 1
-            lastName: hnhg
-            firstName: ghj
-            email: hgj@j.com
-        infos-pro:
-            publicCategory: 20
-            institution: 262
-            professionalSituation: 21
-        infos-contact:
-            addressType:0,
-            address:"5 impasse des Violettes",
-            city:"Thénisy",
-            phoneNumber:"+33688301317",
-            zip:35000*/
 
         return $data;
     }
@@ -169,8 +114,8 @@ class ShibbolethController extends Controller
         if (preg_match('/([^$]*)\$(\w{5})\s(.*)/im', $address, $regs)) {
             return array(
                 'address' => $regs[1],
-                'zip'     => $regs[2],
-                'city'    => $regs[3],
+                'zip' => $regs[2],
+                'city' => $regs[3],
             );
         }
 

@@ -12,7 +12,7 @@ class SecurityController extends Controller
 {
     /**
      * @Route("/oauth/v2/auth_login", name="api.oauth.auth_login")
-     * @Template("SygeforApiBundle:Security:oauth-login.html.twig")
+     * @Template("security/oauth-login.html.twig")
      */
     public function oauthLoginAction(Request $request)
     {
@@ -36,7 +36,7 @@ class SecurityController extends Controller
         return array(
             // last username entered by the user
             'last_username' => $session->get(SecurityContext::LAST_USERNAME),
-            'error'         => $error,
+            'error' => $error,
         );
     }
 
