@@ -2,13 +2,13 @@
 
 namespace Sygefor\Bundle\ApiBundle\Controller;
 
-use FOS\RestBundle\Controller\Annotations as Rest;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
@@ -28,8 +28,15 @@ class ShibbolethController extends Controller
             // redirect user to login form
             $url = $front_url.'/login?shibboleth=1';
         } else {
-            // redirect user to registration form
-            $url = $front_url.'/register/organization?shibboleth=1';
+	        // shibboleth authentification worked
+	        $token = $this->get('security.context')->getToken();
+	        $success = '0';
+	        if ($token->hasAttribute('mail') && $token->getAttribute('mail')) {
+		        $success = '1';
+	        }
+
+	        // redirect user to registration form
+	        $url = $front_url.'/register/organization?shibboleth='.$success;
         }
 
         if ($request->getQueryString()) {

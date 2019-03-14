@@ -2,12 +2,12 @@
 
 namespace Sygefor\Bundle\ApiBundle\Security;
 
-use KULeuven\ShibbolethBundle\Security\ShibbolethUserProviderInterface;
-use KULeuven\ShibbolethBundle\Security\ShibbolethUserToken;
-use Sygefor\Bundle\ApiBundle\Repository\AccountRepository;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Sygefor\Bundle\ApiBundle\Repository\AccountRepository;
+use KULeuven\ShibbolethBundle\Security\ShibbolethUserToken;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use KULeuven\ShibbolethBundle\Security\ShibbolethUserProviderInterface;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
 class ShibbolethUserProvider implements ShibbolethUserProviderInterface
 {
@@ -81,6 +81,10 @@ class ShibbolethUserProvider implements ShibbolethUserProviderInterface
         if (!$shibbolethId) {
             $shibbolethId = $email;
         }
+
+	    if (!$shibbolethId) {
+		    return null;
+	    }
 
         // try to find the user by email, and then by persistent id
         $user = $this->repository->findOneByShibbolethPersistentId($shibbolethId);
