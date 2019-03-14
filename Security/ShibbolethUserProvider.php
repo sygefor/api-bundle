@@ -82,9 +82,9 @@ class ShibbolethUserProvider implements ShibbolethUserProviderInterface
             $shibbolethId = $email;
         }
 
-	    if (!$shibbolethId) {
-		    return null;
-	    }
+        if (!$shibbolethId) {
+            return null;
+        }
 
         // try to find the user by email, and then by persistent id
         $user = $this->repository->findOneByShibbolethPersistentId($shibbolethId);

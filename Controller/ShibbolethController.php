@@ -28,15 +28,15 @@ class ShibbolethController extends Controller
             // redirect user to login form
             $url = $front_url.'/login?shibboleth=1';
         } else {
-	        // shibboleth authentification worked
-	        $token = $this->get('security.context')->getToken();
-	        $success = '0';
-	        if ($token->hasAttribute('mail') && $token->getAttribute('mail')) {
-		        $success = '1';
-	        }
+            // shibboleth authentification worked
+            $token = $this->get('security.context')->getToken();
+            $success = '0';
+            if ($token->hasAttribute('mail') && $token->getAttribute('mail')) {
+                $success = '1';
+            }
 
-	        // redirect user to registration form
-	        $url = $front_url.'/register/organization?shibboleth='.$success;
+            // redirect user to registration form
+            $url = $front_url.'/register/organization?shibboleth='.$success;
         }
 
         if ($request->getQueryString()) {
