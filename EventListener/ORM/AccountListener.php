@@ -2,12 +2,12 @@
 
 namespace Sygefor\Bundle\ApiBundle\EventListener\ORM;
 
-use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 use Html2Text\Html2Text;
+use Doctrine\Common\EventSubscriber;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
-use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * This listener :
@@ -20,9 +20,9 @@ class AccountListener implements EventSubscriber
     protected $container;
 
     /**
-     * @param Container $container
+     * @param ContainerInterface $container
      */
-    public function __construct(Container $container)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
     }

@@ -27,6 +27,14 @@ class RegistrationType extends AbstractType
         ;
     }
 
+	/**
+	 * @return string
+	 */
+	public function getParent()
+	{
+		return ProfileType::class;
+	}
+
     /**
      * @param $resolver
      */
@@ -38,10 +46,5 @@ class RegistrationType extends AbstractType
             'enable_security_check' => false,
             'allow_extra_fields' => true,
         ));
-    }
-
-    public function getParent()
-    {
-        return ProfileType::class;
     }
 }

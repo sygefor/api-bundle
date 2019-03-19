@@ -100,9 +100,10 @@ abstract class AbstractAnonymousAccountController extends Controller
         if ($token !== $hash) {
             throw new BadRequestHttpException('Invalid token');
         }
-        $trainee->setIsActive(true);
-        $trainee->setSendCredentialsMail(true);
-        $em->flush();
+	    $trainee->setSendCredentialsMail(!$trainee->getIsActive());
+	    $trainee->setIsActive(true);
+	    $trainee->updateTimestamps();
+	    $em->flush();
 
         // redirect
         $front_url = $this->container->getParameter('front_url');

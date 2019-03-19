@@ -7,6 +7,7 @@ use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sygefor\Bundle\ApiBundle\Form\Type\RgpdType;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormError;
@@ -21,11 +22,13 @@ use Symfony\Component\HttpFoundation\Request;
 class ProfileAccountController extends Controller
 {
     /**
-     * Profile.
+     * @var Request $request
      *
      * @Route("/profile", name="api.account.profile", defaults={"_format" = "json"})
      * @Rest\View(serializerGroups={"api", "api.profile"})
      * @Method({"GET", "POST"})
+     *
+     * @return mixed
      */
     public function profileAction(Request $request)
     {
@@ -40,7 +43,8 @@ class ProfileAccountController extends Controller
                 $this->getDoctrine()->getManager()->flush();
 
                 return array('updated' => true);
-            } else {
+            }
+            else {
                 /* @var FormError $error */
                 $parser = $this->get('sygefor_api.form_errors.parser');
 
@@ -50,4 +54,35 @@ class ProfileAccountController extends Controller
 
         return $trainee;
     }
+
+	/**
+	 * @var Request $request
+	 *
+	 * @Route("/rgpd", name="api.account.rgpd", defaults={"_format" = "json"})
+	 * @Rest\View(serializerGroups={"api", "api.profile"})
+	 *
+	 * @return mixed
+	 */
+	public function rgpdAction(Request $request)
+	{
+		/** @var AbstractTrainee $trainee */
+		$trainee = $this->getUser();
+		$form = $this->createForm(new RgpdType(), $trainee);
+		if ($request->getMethod() == 'POST') {
+			$form->submit($request->request->all(), true);
+			$form->handleRequest($request);
+			if ($form->isValid()) {
+				$this->getDoctrine()->getManager()->flush();
+				return ['updated' => true];
+			}
+			else {
+				/** @var FormError $error */
+				$parser = $this->get('sygefor_api.form_errors.parser');
+
+				return new View(['errors' => $parser->parseErrors($form)], 422);
+			}
+		}
+
+		return $trainee;
+	}
 }
