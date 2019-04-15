@@ -24,7 +24,7 @@ class ProfileType extends AbstractType
 
 		$builder
 			->add('newsletter', NewsletterType::class, [
-				'label' => 'Inscriptions aux lettres d\'informations',
+				'label' => 'En cochant cette case, j\'accepte de recevoir les lettres d\'informations.',
 				'required' => false,
 			])
 			->add('cgu', CguType::class, [

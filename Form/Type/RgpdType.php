@@ -19,11 +19,13 @@ class RgpdType extends AbstractType
 	public function buildForm(FormBuilderInterface $builder, array $options)
 	{
 		$builder
-			->add('cgu', CheckboxType::class, [
-				'label' => 'Conditions générales d\'utilisation',
+			->add('cgu', CguType::class, [
+				'label' => 'Conditions générales d\'utilisation'
 			])
-			->add('consent', CheckboxType::class, [
-				'label' => 'Consentement explicite d\'utilisation des données',
+			->add('consent', ConsentType::class, [
+				'label' => 'Consentement de l\'utilisation de mes données',
+				'widget_checkbox_label' => 'label',
+				'help_block' => 'En cochant cette case, j\'accepte que les données recueillies soient utilisées dans le cadre de mon inscription à des événements organisés et proposés par la plateforme.',
 			])
 		;
 	}
