@@ -3,7 +3,6 @@
 namespace Sygefor\Bundle\ApiBundle\EventListener\ORM;
 
 use Doctrine\ORM\Events;
-use Html2Text\Html2Text;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
@@ -112,32 +111,15 @@ class AccountListener implements EventSubscriber
      */
     protected function sendCredentialsMail(AbstractTrainee $trainee, $new)
     {
-        // prepare the body
-        $parameters = array(
-          'trainee' => $trainee,
-          'password' => $trainee->getPlainPassword(),
-          'new' => $new,
-          'url' => $this->container->getParameter('front_url'),
-        );
-
-        $template = 'welcome.html.twig';
-        if ($trainee->getShibbolethPersistentId()) {
-            // if shibboleth, send special message
-            $template = 'welcome.shibboleth.html.twig';
-        }
-
-        $body = $this->container->get('templating')->render('trainee/'.$template, $parameters);
-
-        // send the mail
-        $message = \Swift_Message::newInstance(null, null, 'text/html', null)
-          ->setFrom($this->container->getParameter('mailer_from'), $trainee->getOrganization()->getName())
-          ->setReplyTo($trainee->getOrganization()->getEmail())
-          ->setSubject('Bienvenue sur la plateforme SYGEFOR !')
-          ->setTo($trainee->getEmail())
-          ->setBody($body);
-        $message->addPart(Html2Text::convert($message->getBody()), 'text/plain');
-        $this->container->get('mailer')->send($message);
-        $trainee->setSendCredentialsMail(false);
+	    $notification = 'trainee.welcome';
+	    if ($trainee->getShibbolethPersistentId()) {
+		    $notification = 'trainee.welcome_shibboleth';
+	    }
+	    $this->container->get('notification.mailer')->send($notification, $trainee, [
+		    'trainee' => $trainee,
+		    'password' => $trainee->getPlainPassword(),
+	    ]);
+	    $trainee->setSendCredentialsMail(false);
     }
 
     /**
@@ -145,40 +127,21 @@ class AccountListener implements EventSubscriber
      */
     protected function sendActivationMail(AbstractTrainee $trainee, $new)
     {
-        $options = $trainee->getSendActivationMail();
+	    $options = $trainee->getSendActivationMail();
 
-        // generate token & url
-        $token = hash('sha256', $trainee->getId());
-        $params = array(
-          'id' => $trainee->getId(),
-          'token' => $token,
-          'email' => $trainee->getEmail(),
-        );
-        if (!empty($options['redirect'])) {
-            $params['redirect'] = $options['redirect'];
-        }
-        $url = $this->container->get('router')->generate('api.account.activate', $params, true);
-
-        // prepare the body
-        $parameters = array(
-          'trainee' => $trainee,
-          'new' => $new,
-          'url' => $url,
-        );
-
-        // generate body
-        $body = $this->container->get('templating')->render('trainee/activation.html.twig', $parameters);
-
-        // send the mail
-        $message = \Swift_Message::newInstance(null, null, 'text/html', null)
-          ->setFrom($this->container->getParameter('mailer_from'), $trainee->getOrganization()->getName())
-          ->setReplyTo($trainee->getOrganization()->getEmail())
-          ->setSubject('SYGEFOR : Activation de votre compte')
-          ->setTo($trainee->getEmail())
-          ->setBody($body);
-        $message->addPart(Html2Text::convert($message->getBody()), 'text/plain');
-
-        $this->container->get('mailer')->send($message);
-        $trainee->setSendActivationMail(false);
+	    // generate token & url
+	    $token = hash('sha256', $trainee->getId());
+	    $params = array(
+		    'id' => $trainee->getId(),
+		    'token' => $token,
+		    'email' => $trainee->getEmail(),
+	    );
+	    if (!empty($options['redirect'])) {
+		    $params['redirect'] = $options['redirect'];
+	    }
+	    $this->container->get('notification.mailer')->send('trainee.activation', $trainee, [
+		    'url' => $this->container->get('router')->generate('api.account.activate', $params, true),
+	    ]);
+	    $trainee->setSendActivationMail(false);
     }
 }
