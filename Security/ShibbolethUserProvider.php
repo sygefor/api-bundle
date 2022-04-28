@@ -91,25 +91,23 @@ class ShibbolethUserProvider implements ShibbolethUserProviderInterface
 	    $email = $token->getAttribute('mail');
 	    $email = mb_strtolower($email, 'UTF-8');
 	    $identityProvider = $token->getAttribute('identityProvider');
-	    $persistentId = $token->getAttribute('persistent_id');
 	    $targetedId = $token->getAttribute('targeted_id');
-	    $eppn = $token->getAttribute('eppn');
+	    $eppn = $token->getAttribute('uid');
 
-	    // try to find a proper persistent id
-	    $shibbolethId = $persistentId ? $persistentId : $targetedId;
+        $shibbolethId = $identityProvider.'!'.$eppn;
 
-	    // else, build a custom one with eppn
-	    if (!$shibbolethId && $identityProvider && $eppn) {
-		    $shibbolethId = $identityProvider.'!'.$eppn;
-	    }
-	    // else, build a custom one with identityProvider
-	    else if (!$shibbolethId && !$eppn && $identityProvider && $email) {
-		    $shibbolethId = $identityProvider.'!'.$email;
-	    }
+        // build a custom persistent id with identityProvider
+        if (!$shibbolethId && !$eppn && $identityProvider && $email) {
+            $shibbolethId = $identityProvider.'!'.$email;
+        }
 
-	    if (!$shibbolethId) {
-		    $shibbolethId = $email;
-	    }
+        if (!$shibbolethId) {
+            if ($targetedId) {
+                   $shibbolethId = $targetedId;
+            } else {
+                   $shibbolethId = $email;
+            }
+        }
 
 	    return $shibbolethId;
     }
