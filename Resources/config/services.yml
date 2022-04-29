@@ -47,6 +47,13 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
+    # Cgu Checker
+    sygefor_api.rgpd_checker:
+        class: Sygefor\Bundle\ApiBundle\EventListener\RgpdListener
+        arguments: ["@router", "@security.token_storage", "@request_stack", "@security.authorization_checker"]
+        tags:
+            - { name: kernel.event_listener, event: kernel.request }
+
     # error parser
     sygefor_api.form_errors.parser:
         class: Sygefor\Bundle\ApiBundle\Utils\FormErrorsParser

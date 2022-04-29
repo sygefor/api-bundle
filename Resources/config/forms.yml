@@ -5,3 +5,10 @@ services:
             - "@Sygefor_core.access_right_registry"
         tags:
             - { name: form.type }
+
+    sygefor_api.form.type.profile:
+        class: Sygefor\Bundle\ApiBundle\Form\Type\ProfileType
+        arguments:
+            - "@Sygefor_core.access_right_registry"
+        tags:
+            - { name: form.type }

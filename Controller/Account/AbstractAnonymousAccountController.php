@@ -100,9 +100,10 @@ abstract class AbstractAnonymousAccountController extends Controller
         if ($token !== $hash) {
             throw new BadRequestHttpException('Invalid token');
         }
-        $trainee->setIsActive(true);
-        $trainee->setSendCredentialsMail(true);
-        $em->flush();
+	    $trainee->setSendCredentialsMail(!$trainee->getIsActive());
+	    $trainee->setIsActive(true);
+	    $trainee->updateTimestamps();
+	    $em->flush();
 
         // redirect
         $front_url = $this->container->getParameter('front_url');
@@ -178,24 +179,16 @@ abstract class AbstractAnonymousAccountController extends Controller
             $em->flush();
 
             return array('updated' => true);
-        } else {
+        }
+        else {
             $timestamp = time();
             $token = $timestamp.'.'.$this->getTimestampedHash($trainee, $timestamp);
-
-            // Send a email with a generated link with token
             $resetUrl = $this->container->getParameter('front_url')."/reset-password/$email/$token";
 
-            // send the mail
-            $message = \Swift_Message::newInstance(null, null, 'text/html', null)
-                ->setFrom($this->container->getParameter('mailer_from'), $this->container->getParameter('mailer_from_name'))
-                ->setReplyTo($trainee->getOrganization()->getEmail())
-                ->setSubject('SYGEFOR : Réinitialisation de votre mot de passe')
-                ->setTo($trainee->getEmail())
-                ->setBody($this->renderView('trainee/reset-password.html.twig', array('trainee' => $trainee, 'resetUrl' => $resetUrl)));
-            $message->addPart(Html2Text::convert($message->getBody()), 'text/plain');
-            $sent = $this->get('mailer')->send($message);
-
-            return array('sent' => (bool) $sent);
+	        return ['sent' => $this->container->get('notification.mailer')->send('trainee.reset_password', $trainee, [
+		        'resetUrl' => $resetUrl,
+		        'recipient' => $trainee,
+	        ])];
         }
     }
 

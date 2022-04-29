@@ -68,6 +68,24 @@ trait AccountTrait
      */
     private $sendActivationMail;
 
+	/**
+	 * @ORM\Column(name="newsletter", type="boolean", options={"default": true})
+	 * @Serializer\Groups({"trainee", "api.profile"})
+	 */
+	protected $newsletter;
+
+	/**
+	 * @ORM\Column(name="cgu", type="boolean", options={"default": false})
+	 * @Serializer\Groups({"api", "api.token"})
+	 */
+	protected $cgu;
+
+	/**
+	 * @ORM\Column(name="consent", type="boolean", options={"default": false})
+	 * @Serializer\Groups({"api", "api.token"})
+	 */
+	protected $consent;
+
     /**
      * {@inheritdoc}
      */
@@ -211,6 +229,54 @@ trait AccountTrait
     {
         $this->sendActivationMail = $sendActivationMail;
     }
+
+	/**
+	 * @return mixed
+	 */
+	public function getNewsletter()
+	{
+		return $this->newsletter;
+	}
+
+	/**
+	 * @param mixed $newsletter
+	 */
+	public function setNewsletter($newsletter)
+	{
+		$this->newsletter = $newsletter;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getCgu()
+	{
+		return $this->cgu;
+	}
+
+	/**
+	 * @param mixed $cgu
+	 */
+	public function setCgu($cgu)
+	{
+		$this->cgu = $cgu;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getConsent()
+	{
+		return $this->consent;
+	}
+
+	/**
+	 * @param mixed $consent
+	 */
+	public function setConsent($consent)
+	{
+		$this->consent = $consent;
+	}
 
     /**
      * {@inheritdoc}
