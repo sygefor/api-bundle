@@ -157,7 +157,13 @@ class AccountListener implements EventSubscriber
         if (!empty($options['redirect'])) {
             $params['redirect'] = $options['redirect'];
         }
-        $url = $this->container->get('router')->generate('api.account.activate', $params, true);
+
+        // builds a different route depending on the code of the trainee's organization : Ifsem or Aquitaine
+        if ($trainee->getOrganization()->getCode() != 'dr15'){
+            $url = $this->container->get('router')->generate('api.account.activate', $params, true);
+        } else {
+            $url = $this->container->get('router')->generate('api2.account.activate', $params, true);
+        }
 
         // prepare the body
         $parameters = array(
